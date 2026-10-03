@@ -127,7 +127,15 @@ table.insert(components,{Name=name,Count=metric.Count,Suspended=metric.Suspended
 LastMs=metric.LastMs,MaxMs=metric.MaxMs,P95Ms=samples[math.max(1,math.ceil(#samples*0.95))]or 0})
 end
 table.sort(components,function(a,b)return a.Name<b.Name end)
-return{Version="2.5.1 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
+local resourceKinds={}
+for resource in Runtime.Resources.Items do
+local kind=typeof(resource)
+resourceKinds[kind]=(resourceKinds[kind]or 0)+1
+end
+local ui=Runtime.Library
+local uiCounts=ui and{RegistryEntries=#ui.Registry,RetainedSignals=#ui.Signals}or nil
+return{Version="2.5.2 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
+ResourceKinds=resourceKinds,UI=uiCounts,
 Components=components,Log=(function()
 local result={}
 for _,item in Runtime.Log do table.insert(result,table.clone(item))end
@@ -426,7 +434,7 @@ end
 
 return Assets end function init.e()local v=init.cache.e if not v then v={c=__modImpl()}init.cache.e=v end return v.c end end do local __modImpl=function()
 
-return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.5.1 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
+return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.5.2 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
 
 function Preflight.Check()
 local rows={}local add, 
@@ -743,7 +751,14 @@ return TeamList end
 
 function Library.SafeCallback(self,callback,...)
 if not callback or not Library.Alive then return end
-local ok,result=pcall(callback,...)
+local ok,result=xpcall(callback,function(err)
+local message=tostring(err)
+if type(debug)=="table"and type(debug.traceback)=="function"then
+local traced,trace=pcall(debug.traceback,message,2)
+if traced and type(trace)=="string"then return trace end
+end
+return message
+end,...)
 if not ok then
 Runtime.Record("UI callback",result)
 if Library.NotifyOnError then
@@ -1028,16 +1043,26 @@ return(1-((Value-MinA)/(MaxA-MinA)))*MinB+((Value-MinA)/(MaxA-MinA))*MaxB
 end
 
 function Library.GetTextBounds(self,Text,FontFace,Size,Resolution)
-local Params=Instance.new"GetTextBoundsParams"
+local Params
+local ok,Bounds=pcall(function()
+Params=Instance.new"GetTextBoundsParams"
 Params.Text=Text
 Params.Font=FontFace
 Params.Size=Size
 Params.Width=Resolution and Resolution.X or math.huge
-
-local ok,Bounds=pcall(function()return TextService:GetTextBoundsAsync(Params)end)
-Params:Destroy()
+return TextService:GetTextBoundsAsync(Params)
+end)
+if Params then
+local cleaned,cleanupError=pcall(function()Params:Destroy()end)
+if not cleaned then Runtime.Record("text measurement cleanup",cleanupError)end
+end
 if not ok then
-Bounds=TextService:GetTextSize(Text,Size,Library.Font,Vector2.new(Resolution and Resolution.X or 10000,10000))
+Runtime.Record("text measurement",Bounds)
+local fallbackOk,fallback=pcall(function()
+return TextService:GetTextSize(Text,Size,Library.Font,Vector2.new(Resolution and Resolution.X or 10000,10000))
+end)
+if not fallbackOk then error("Text measurement unavailable: "..tostring(fallback),0)end
+Bounds=fallback
 end
 return Bounds.X,Bounds.Y
 end
@@ -4671,12 +4696,12 @@ Cache={}
 TransparencyCache[Desc]=Cache
 end
 
-for _,Prop in next,Properties do local __DARKLUA_CONTINUE_78=false repeat
+for _,Prop in next,Properties do local __DARKLUA_CONTINUE_79=false repeat
 if not Cache[Prop]then
 Cache[Prop]=Desc[Prop]
 end
 
-if Cache[Prop]==1 then __DARKLUA_CONTINUE_78=true
+if Cache[Prop]==1 then __DARKLUA_CONTINUE_79=true
 break
 end
 
@@ -4684,7 +4709,7 @@ TweenService:Create(
 Desc,
 TweenInfo.new(FadeTime,Enum.EasingStyle.Linear),
 {[Prop]=Toggled and Cache[Prop]or 1}
-):Play()__DARKLUA_CONTINUE_78=true until true if not __DARKLUA_CONTINUE_78 then break end
+):Play()__DARKLUA_CONTINUE_79=true until true if not __DARKLUA_CONTINUE_79 then break end
 end
 end
 
@@ -5297,14 +5322,14 @@ count=count+1
 end
 if count~=#data.objects or count>1000 then return false,"invalid profile array size"end
 local entries,seen={},{}
-for _,entry in data.objects do local __DARKLUA_CONTINUE_104=false repeat
+for _,entry in data.objects do local __DARKLUA_CONTINUE_105=false repeat
 if type(entry)~="table"or type(entry.idx)~="string"or type(entry.type)~="string"then
 return false,"invalid profile entry"
 end
 if seen[entry.idx]then return false,"duplicate setting: "..entry.idx end
 seen[entry.idx]=true
 local object=entry.type=="Toggle"and Toggles[entry.idx]or Options[entry.idx]
-if not object or self.Ignore[entry.idx]then __DARKLUA_CONTINUE_104=true break end
+if not object or self.Ignore[entry.idx]then __DARKLUA_CONTINUE_105=true break end
 if object.Type~=entry.type or not self.Parser[entry.type]then return false,"setting type mismatch: "..entry.idx end
 local value=table.clone(entry)
 if entry.type=="Toggle"then
@@ -5333,7 +5358,7 @@ if type(key)~="string"or type(enabled)~="boolean"then return false,"invalid sele
 end
 elseif entry.value~=nil and type(entry.value)~="string"then return false,"invalid selection: "..entry.idx end
 end
-table.insert(entries,value)__DARKLUA_CONTINUE_104=true until true if not __DARKLUA_CONTINUE_104 then break end
+table.insert(entries,value)__DARKLUA_CONTINUE_105=true until true if not __DARKLUA_CONTINUE_105 then break end
 end
 local priority={AllowUnsafeFeatures=0,ChantSpamGender=1,ChantSpamNation=2,ChantSpamSet=3,BypassRangeCheck=4}
 table.sort(entries,function(a,b)
@@ -5637,20 +5662,20 @@ return Value
 end
 end
 
-for Index=1,#Modules.GarbageCollection do local __DARKLUA_CONTINUE_115=false repeat
+for Index=1,#Modules.GarbageCollection do local __DARKLUA_CONTINUE_116=false repeat
 local Value=Modules.GarbageCollection[Index]
 
-if not Value or typeof(Value)~="function"then __DARKLUA_CONTINUE_115=true
+if not Value or typeof(Value)~="function"then __DARKLUA_CONTINUE_116=true
 break
 end
 
 local source=debug.info(Value,"s")
-if not source or not string_find(source,Name,1,true)then __DARKLUA_CONTINUE_115=true
+if not source or not string_find(source,Name,1,true)then __DARKLUA_CONTINUE_116=true
 break
 end
 
 local env=getfenv(Value)
-if typeof(env)~="table"then __DARKLUA_CONTINUE_115=true
+if typeof(env)~="table"then __DARKLUA_CONTINUE_116=true
 break
 end
 
@@ -5664,7 +5689,7 @@ Module=env.script,
 }
 
 return Module
-end __DARKLUA_CONTINUE_115=true until true if not __DARKLUA_CONTINUE_115 then break end
+end __DARKLUA_CONTINUE_116=true until true if not __DARKLUA_CONTINUE_116 then break end
 end
 
 return nil
@@ -5680,24 +5705,24 @@ local Variables,
 GarbageCollection={Cache={},Captured={},},getgc(true)
 
 Variables.VariablesIndex=(LPH_JIT_MAX(function()
-for i=1,#GarbageCollection do local __DARKLUA_CONTINUE_116=false repeat
+for i=1,#GarbageCollection do local __DARKLUA_CONTINUE_117=false repeat
 local Value=GarbageCollection[i]
 
-if typeof(Value)~="function"then __DARKLUA_CONTINUE_116=true
+if typeof(Value)~="function"then __DARKLUA_CONTINUE_117=true
 break
 end
 
 local info=debug.getinfo(Value)
 
-if not info or not string.match(info.source,"ReplicatedStorage.Variables")then __DARKLUA_CONTINUE_116=true
+if not info or not string.match(info.source,"ReplicatedStorage.Variables")then __DARKLUA_CONTINUE_117=true
 break
 end
 
-if info.name=="index"then __DARKLUA_CONTINUE_116=true
+if info.name=="index"then __DARKLUA_CONTINUE_117=true
 break
 end
 
-return Value until true if not __DARKLUA_CONTINUE_116 then break end
+return Value until true if not __DARKLUA_CONTINUE_117 then break end
 end
 
 return nil
@@ -5945,16 +5970,16 @@ if typeof(upvalue)~="table"then
 return nil
 end
 
-for _,v in upvalue do local __DARKLUA_CONTINUE_122=false repeat
-if typeof(v)~="function"then __DARKLUA_CONTINUE_122=true
+for _,v in upvalue do local __DARKLUA_CONTINUE_123=false repeat
+if typeof(v)~="function"then __DARKLUA_CONTINUE_123=true
 break
 end
 
-if debug.info(v,"n")~="FireServer"then __DARKLUA_CONTINUE_122=true
+if debug.info(v,"n")~="FireServer"then __DARKLUA_CONTINUE_123=true
 break
 end
 
-return v until true if not __DARKLUA_CONTINUE_122 then break end
+return v until true if not __DARKLUA_CONTINUE_123 then break end
 end
 
 return nil
@@ -6120,43 +6145,43 @@ end
 
 local Players=Players:GetPlayers()
 
-for i=1,#Players do local __DARKLUA_CONTINUE_125=false repeat
+for i=1,#Players do local __DARKLUA_CONTINUE_126=false repeat
 local Player=Players[i]
 
-if Player==LocalPlayer then __DARKLUA_CONTINUE_125=true
+if Player==LocalPlayer then __DARKLUA_CONTINUE_126=true
 break
 end
 
-if not Player.Character then __DARKLUA_CONTINUE_125=true
+if not Player.Character then __DARKLUA_CONTINUE_126=true
 break
 end
 
 local Character=Player.Character
 local HumanoidRootPart=Character and Character:FindFirstChild"HumanoidRootPart"
 
-if not HumanoidRootPart then __DARKLUA_CONTINUE_125=true
+if not HumanoidRootPart then __DARKLUA_CONTINUE_126=true
 break
 end
 
 if Player.Team==LocalPlayer.Team then
-Disable(HumanoidRootPart)__DARKLUA_CONTINUE_125=true
+Disable(HumanoidRootPart)__DARKLUA_CONTINUE_126=true
 break
 end
 
 local Humanoid=Character:FindFirstChild"Humanoid"
 
 if not Humanoid then
-Disable(HumanoidRootPart)__DARKLUA_CONTINUE_125=true
+Disable(HumanoidRootPart)__DARKLUA_CONTINUE_126=true
 break
 end
 
 if Humanoid.Health<=0 then
-Disable(HumanoidRootPart)__DARKLUA_CONTINUE_125=true
+Disable(HumanoidRootPart)__DARKLUA_CONTINUE_126=true
 break
 end
 
 if Humanoid.MaxHealth>100 then
-Disable(HumanoidRootPart)__DARKLUA_CONTINUE_125=true
+Disable(HumanoidRootPart)__DARKLUA_CONTINUE_126=true
 break
 end
 
@@ -6164,7 +6189,7 @@ Capture(HumanoidRootPart)
 HumanoidRootPart.Color=HitboxExtender.Config.Color
 HumanoidRootPart.Material=HitboxExtender.Config.Material
 HumanoidRootPart.Transparency=getgenv().Options and getgenv().Options.HitboxExtenderColor and getgenv().Options.HitboxExtenderColor.Transparency or HitboxExtender.Config.Transparency
-HumanoidRootPart.Size=Vector3.new(2,2,2)*HitboxExtender.Config.SizeIncrease __DARKLUA_CONTINUE_125=true until true if not __DARKLUA_CONTINUE_125 then break end
+HumanoidRootPart.Size=Vector3.new(2,2,2)*HitboxExtender.Config.SizeIncrease __DARKLUA_CONTINUE_126=true until true if not __DARKLUA_CONTINUE_126 then break end
 end
 end)
 
@@ -6214,11 +6239,11 @@ maximum=math.clamp(math.floor(maximum),1,512)
 while#Tracers.Segments>maximum do Remove(1)end
 local camera,
 now=workspace.CurrentCamera,os.clock()
-for index=#Tracers.Segments,1,-1 do local __DARKLUA_CONTINUE_129=false repeat
+for index=#Tracers.Segments,1,-1 do local __DARKLUA_CONTINUE_130=false repeat
 local segment=Tracers.Segments[index]
-if segment.Expires<=now then Remove(index)__DARKLUA_CONTINUE_129=true break end
+if segment.Expires<=now then Remove(index)__DARKLUA_CONTINUE_130=true break end
 local line=segment.Line
-if not camera then line.Visible=false __DARKLUA_CONTINUE_129=true break end
+if not camera then line.Visible=false __DARKLUA_CONTINUE_130=true break end
 local a,aVisible=camera:WorldToViewportPoint(segment.From)
 local b,bVisible=camera:WorldToViewportPoint(segment.To)
 line.Visible=aVisible and bVisible
@@ -6226,7 +6251,7 @@ if line.Visible then
 line.From=Vector2.new(a.X,a.Y)
 line.To=Vector2.new(b.X,b.Y)
 line.Transparency=math.clamp((segment.Expires-now)/0.15,0,1)
-end __DARKLUA_CONTINUE_129=true until true if not __DARKLUA_CONTINUE_129 then break end
+end __DARKLUA_CONTINUE_130=true until true if not __DARKLUA_CONTINUE_130 then break end
 end
 end
 
@@ -6335,59 +6360,59 @@ FlagBearerDistance,
 
 Players,Closest,Part,FlagBearerClosest,FlagBearerPart=math.huge,false,math.huge,(Players:GetPlayers())
 
-for i=1,#Players do local __DARKLUA_CONTINUE_130=false repeat
+for i=1,#Players do local __DARKLUA_CONTINUE_131=false repeat
 local Player=Players[i]
 
-if Player==LocalPlayer then __DARKLUA_CONTINUE_130=true
+if Player==LocalPlayer then __DARKLUA_CONTINUE_131=true
 break
 end
 
-if Player.Team==LocalPlayer.Team then __DARKLUA_CONTINUE_130=true
+if Player.Team==LocalPlayer.Team then __DARKLUA_CONTINUE_131=true
 break
 end
 
 local Character=Player.Character
 
-if not Character then __DARKLUA_CONTINUE_130=true
+if not Character then __DARKLUA_CONTINUE_131=true
 break
 end
 
 local MaxDistance,CharacterDistance=
 SilentAim.Config.Distance^2,Camera.CFrame.Position-Player.Character:GetPivot().Position
-if CharacterDistance:Dot(CharacterDistance)>MaxDistance then __DARKLUA_CONTINUE_130=true
+if CharacterDistance:Dot(CharacterDistance)>MaxDistance then __DARKLUA_CONTINUE_131=true
 break
 end
 
 local Humanoid=Character:FindFirstChild"Humanoid"
 
-if not Humanoid then __DARKLUA_CONTINUE_130=true
+if not Humanoid then __DARKLUA_CONTINUE_131=true
 break
 end
 
-if Humanoid.Health<=0 then __DARKLUA_CONTINUE_130=true
+if Humanoid.Health<=0 then __DARKLUA_CONTINUE_131=true
 break
 end
 
-if Humanoid.MaxHealth>100 then __DARKLUA_CONTINUE_130=true
+if Humanoid.MaxHealth>100 then __DARKLUA_CONTINUE_131=true
 break
 end
 
 local TargetPart=Character:FindFirstChild(SilentAim.Config.Hitpart)
 
-if not TargetPart then __DARKLUA_CONTINUE_130=true
+if not TargetPart then __DARKLUA_CONTINUE_131=true
 break
 end
 
 local ViewportPoint,OnScreen=Camera:WorldToViewportPoint(TargetPart.Position)
 
-if not OnScreen then __DARKLUA_CONTINUE_130=true
+if not OnScreen then __DARKLUA_CONTINUE_131=true
 break
 end
 
 local Vector=Vector2.new(ViewportPoint.X,ViewportPoint.Y)
 local DistanceToMouse=(UserInputService:GetMouseLocation()-Vector).Magnitude
 
-if DistanceToMouse>Distance then __DARKLUA_CONTINUE_130=true
+if DistanceToMouse>Distance then __DARKLUA_CONTINUE_131=true
 break
 end
 
@@ -6420,7 +6445,7 @@ Closest=Player
 end
 end
 end
-end __DARKLUA_CONTINUE_130=true until true if not __DARKLUA_CONTINUE_130 then break end
+end __DARKLUA_CONTINUE_131=true until true if not __DARKLUA_CONTINUE_131 then break end
 end
 
 if SilentAim.Config.FlagBearerPriority and FlagBearer then
@@ -6542,22 +6567,22 @@ Core.Hashes.simulateFirearmProjectile,
 )
 or LPH_JIT_MAX(function()
 local GarbageCollection=getgc(false)
-for i=1,#GarbageCollection do local __DARKLUA_CONTINUE_131=false repeat
+for i=1,#GarbageCollection do local __DARKLUA_CONTINUE_132=false repeat
 local v=GarbageCollection[i]
 
-if typeof(v)~="function"then __DARKLUA_CONTINUE_131=true
+if typeof(v)~="function"then __DARKLUA_CONTINUE_132=true
 break
 end
 
 local info=debug.getinfo(v)
 
-if not info or typeof(info.source)~="string"or typeof(info.name)~="string"then __DARKLUA_CONTINUE_131=true
+if not info or typeof(info.source)~="string"or typeof(info.name)~="string"then __DARKLUA_CONTINUE_132=true
 break
 end
 
 if info.source=="WeaponsProjectilesClient"and info.name=="simulateFirearmProjectile"then
 return v
-end __DARKLUA_CONTINUE_131=true until true if not __DARKLUA_CONTINUE_131 then break end
+end __DARKLUA_CONTINUE_132=true until true if not __DARKLUA_CONTINUE_132 then break end
 end
 
 return nil
@@ -6743,40 +6768,40 @@ local Distance,Closest,
 
 Players=Melee.Config.AuraRange,{},Players:GetPlayers()
 
-for i=1,#Players do local __DARKLUA_CONTINUE_133=false repeat
+for i=1,#Players do local __DARKLUA_CONTINUE_134=false repeat
 local Player=Players[i]
 
-if Player==LocalPlayer then __DARKLUA_CONTINUE_133=true
+if Player==LocalPlayer then __DARKLUA_CONTINUE_134=true
 break
 end
 
-if Player.Team==LocalPlayer.Team then __DARKLUA_CONTINUE_133=true
+if Player.Team==LocalPlayer.Team then __DARKLUA_CONTINUE_134=true
 break
 end
 
 local Character=Player.Character
 
-if not Character then __DARKLUA_CONTINUE_133=true
+if not Character then __DARKLUA_CONTINUE_134=true
 break
 end
 
 local PrimaryPart=Character:FindFirstChild"HumanoidRootPart"
 
-if not PrimaryPart then __DARKLUA_CONTINUE_133=true
+if not PrimaryPart then __DARKLUA_CONTINUE_134=true
 break
 end
 
 local Humanoid=Character:FindFirstChild"Humanoid"
 
-if not Humanoid then __DARKLUA_CONTINUE_133=true
+if not Humanoid then __DARKLUA_CONTINUE_134=true
 break
 end
 
-if Humanoid.Health<=0 then __DARKLUA_CONTINUE_133=true
+if Humanoid.Health<=0 then __DARKLUA_CONTINUE_134=true
 break
 end
 
-if Humanoid.MaxHealth>100 then __DARKLUA_CONTINUE_133=true
+if Humanoid.MaxHealth>100 then __DARKLUA_CONTINUE_134=true
 break
 end
 
@@ -6784,7 +6809,7 @@ local Magnitude=(PrimaryPart.Position-StatesHrpClient.getHrp().Position).Magnitu
 
 if Distance>Magnitude then
 table.insert(Closest,{Player=Player,Health=Humanoid.Health})
-end __DARKLUA_CONTINUE_133=true until true if not __DARKLUA_CONTINUE_133 then break end
+end __DARKLUA_CONTINUE_134=true until true if not __DARKLUA_CONTINUE_134 then break end
 end
 
 if#Closest==0 then
@@ -6869,14 +6894,14 @@ end
 
 local Players=Players:GetPlayers()
 
-for i=1,#Players do local __DARKLUA_CONTINUE_143=false repeat
+for i=1,#Players do local __DARKLUA_CONTINUE_144=false repeat
 local Player=Players[i]
 
-if Enemy~=Player then __DARKLUA_CONTINUE_143=true
+if Enemy~=Player then __DARKLUA_CONTINUE_144=true
 break
 end
 
-if not(Player.Character and Player.Character.PrimaryPart and LocalPlayer.Character and LocalPlayer.Character.PrimaryPart and Melee.TargetLines[Player])then __DARKLUA_CONTINUE_143=true break end
+if not(Player.Character and Player.Character.PrimaryPart and LocalPlayer.Character and LocalPlayer.Character.PrimaryPart and Melee.TargetLines[Player])then __DARKLUA_CONTINUE_144=true break end
 local To,OnScreen=Camera:WorldToViewportPoint(Player.Character.PrimaryPart.Position)
 local To2,OnScreen2=Camera:WorldToViewportPoint(LocalPlayer.Character.PrimaryPart.Position)
 
@@ -6887,7 +6912,7 @@ Melee.TargetLines[Player].From=Vector2.new(To2.X,To2.Y)
 Melee.TargetLines[Player].To=Vector2.new(To.X,To.Y)
 else
 Melee.TargetLines[Player].Visible=false
-end __DARKLUA_CONTINUE_143=true until true if not __DARKLUA_CONTINUE_143 then break end
+end __DARKLUA_CONTINUE_144=true until true if not __DARKLUA_CONTINUE_144 then break end
 end
 else
 for _,Line in Melee.TargetLines do
@@ -7106,7 +7131,7 @@ local Shake,
 
 
 
-OldShake=((LPH_JIT_MAX(function()local upvalues=debug.getupvalues(CombatRecoilClient.start)for _,v in upvalues do local __DARKLUA_CONTINUE_145=false repeat if typeof(v)~="function"then __DARKLUA_CONTINUE_145=true break end return v until true if not __DARKLUA_CONTINUE_145 then break end end return nil end))())
+OldShake=((LPH_JIT_MAX(function()local upvalues=debug.getupvalues(CombatRecoilClient.start)for _,v in upvalues do local __DARKLUA_CONTINUE_146=false repeat if typeof(v)~="function"then __DARKLUA_CONTINUE_146=true break end return v until true if not __DARKLUA_CONTINUE_146 then break end end return nil end))())
 OldShake=Utils.SecureHook(Shake,function(...)
 if Mods.Misc.RemoveMoraleCameraShake then
 return
@@ -7694,13 +7719,13 @@ end
 
 
 local scheme=data[2]
-for idx,col in next,customThemeData or scheme do local __DARKLUA_CONTINUE_156=false repeat
-if not table.find(ThemeFields,idx)then __DARKLUA_CONTINUE_156=true break end
+for idx,col in next,customThemeData or scheme do local __DARKLUA_CONTINUE_157=false repeat
+if not table.find(ThemeFields,idx)then __DARKLUA_CONTINUE_157=true break end
 self.Library[idx]=Color3.fromHex(col)
 
 if Options[idx]then
 Options[idx]:SetValueRGB(Color3.fromHex(col))
-end __DARKLUA_CONTINUE_156=true until true if not __DARKLUA_CONTINUE_156 then break end
+end __DARKLUA_CONTINUE_157=true until true if not __DARKLUA_CONTINUE_157 then break end
 end
 
 self:ThemeUpdate()
