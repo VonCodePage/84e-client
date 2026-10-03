@@ -138,7 +138,7 @@ resourceKinds[kind]=(resourceKinds[kind]or 0)+1
 end
 local ui=Runtime.Library
 local uiCounts=ui and{RegistryEntries=#ui.Registry,RetainedSignals=#ui.Signals}or nil
-return{Version="2.6.2 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
+return{Version="2.7 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
 ResourceKinds=resourceKinds,UI=uiCounts,
 Components=components,Log=(function()
 local result={}
@@ -438,7 +438,7 @@ end
 
 return Assets end function init.e()local v=init.cache.e if not v then v={c=__modImpl()}init.cache.e=v end return v.c end end do local __modImpl=function()
 
-return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.6.2 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
+return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.7 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
 
 function Preflight.Check()
 local rows={}local add, 
@@ -703,7 +703,7 @@ local Library,
 
 
 RainbowStep,
-Hue={Registry={},RegistryMap={},HudRegistry={},FontColor=Color3.fromRGB(231,234,241),DisabledColor=Color3.fromRGB(65,65,65),MainColor=Color3.fromRGB(25,28,35),BackgroundColor=Color3.fromRGB(17,20,26),AccentColor=Color3.fromRGB(225,77,91),OutlineColor=Color3.fromRGB(48,54,66),RiskColor=Color3.fromRGB(200,50,50),Black=Color3.new(0,0,0),FontFace=TahomaFont or Font.fromEnum(Enum.Font.Code),Font=Enum.Font.Code,AllowRiskyFeatures=false,OpenedFrames={},DependencyBoxes={},Signals={},UnloadCallbacks={},Alive=true,NotifyOnError=true,SaveQueued=false,FontScale=1,ReducedMotion=false,StandardCursor=false,MenuVisible=false,FontBaselines=setmetatable({},{__mode="k"}),ScreenGui=ScreenGui,},0,0
+Hue={Registry={},RegistryMap={},HudRegistry={},FontColor=Color3.fromRGB(230,234,245),DisabledColor=Color3.fromRGB(65,65,65),MainColor=Color3.fromRGB(23,27,37),BackgroundColor=Color3.fromRGB(14,17,24),AccentColor=Color3.fromRGB(124,140,255),OutlineColor=Color3.fromRGB(43,50,67),RiskColor=Color3.fromRGB(200,50,50),Black=Color3.new(0,0,0),FontFace=Font.fromEnum(Enum.Font.BuilderSans),Font=Enum.Font.BuilderSans,AllowRiskyFeatures=false,OpenedFrames={},DependencyBoxes={},Signals={},UnloadCallbacks={},Alive=true,NotifyOnError=true,SaveQueued=false,FontScale=1,ReducedMotion=false,StandardCursor=false,MenuVisible=false,FontBaselines=setmetatable({},{__mode="k"}),ScreenGui=ScreenGui,},0,0
 
 table.insert(
 Library.Signals,
@@ -836,9 +836,16 @@ end
 end)
 end
 if Library.Window then
-for _,tab in Library.Window.Tabs do
+local function resizeTabs(tabs)
+for _,tab in tabs do
 for _,group in tab.Groupboxes do group:Resize()end
+for _,box in tab.Tabboxes do
+for _,page in box.Tabs do if page.Resize then page:Resize()end end
 end
+resizeTabs(tab.Pages)
+end
+end
+resizeTabs(Library.Window.Tabs)
 end
 end
 
@@ -879,13 +886,29 @@ Parent=Inst,
 })
 end
 
+function Library.Round(self,frame,radius,outline)
+frame.BorderSizePixel=0
+local corner=Library:Create("UICorner",{CornerRadius=UDim.new(0,radius),Parent=frame})
+if outline then
+local stroke=Library:Create("UIStroke",{Color=Library.OutlineColor,Thickness=1,Parent=frame})
+Library:AddToRegistry(stroke,{Color="OutlineColor"})
+end
+return corner
+end
+
+function Library.SetUIScale(self,value)
+assert(type(value)=="number"and value==value and math.abs(value)<math.huge,"invalid UI scale")
+self.RequestedUIScale=math.clamp(value,0.75,1.5)
+if self.Window and self.Window.FitToViewport then self.Window:FitToViewport()end
+end
+
 function Library.CreateLabel(self,Properties,IsHud)
 local _Instance=Library:Create("TextLabel",{
 BackgroundTransparency=1,
 Font=Library.Font,
 FontFace=Library.FontFace,
 TextColor3=Library.FontColor,
-TextSize=12,
+TextSize=13,
 TextStrokeTransparency=0,
 })
 
@@ -924,7 +947,7 @@ end)
 end
 
 function Library.AddToolTip(self,InfoStr,HoverInstance)
-local X,Y=Library:GetTextBounds(InfoStr,Library.FontFace,12)
+local X,Y=Library:GetTextBounds(InfoStr,Library.FontFace,13)
 local Tooltip=Library:Create("Frame",{
 BackgroundColor3=Library.MainColor,
 BorderColor3=Library.OutlineColor,
@@ -939,7 +962,7 @@ Visible=false,
 local Label=Library:CreateLabel{
 Position=UDim2.fromOffset(3,1),
 Size=UDim2.fromOffset(X,Y),
-TextSize=12,
+TextSize=13,
 Text=InfoStr,
 TextColor3=Library.FontColor,
 TextXAlignment=Enum.TextXAlignment.Left,
@@ -1363,7 +1386,7 @@ Parent=HueBoxOuter,
 Library:Create("UIGradient",{
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(212,212,212)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),
 },
 Rotation=90,
 Parent=HueBoxInner,
@@ -1377,7 +1400,7 @@ PlaceholderColor3=Color3.fromRGB(190,190,190),
 PlaceholderText="Hex color",
 Text="#FFFFFF",
 TextColor3=Library.FontColor,
-TextSize=12,
+TextSize=13,
 TextStrokeTransparency=0,
 TextXAlignment=Enum.TextXAlignment.Left,
 ZIndex=20,
@@ -1452,7 +1475,7 @@ DisplayLabel,
 
 
 
-ContextMenu=Library:CreateLabel{Size=UDim2.new(1,0,0,14),Position=UDim2.fromOffset(5,5),TextXAlignment=Enum.TextXAlignment.Left,TextSize=12,Text=ColorPicker.Title,TextWrapped=false,ZIndex=16,Parent=PickerFrameInner,FontFace=Library.FontFace,}, {}
+ContextMenu=Library:CreateLabel{Size=UDim2.new(1,0,0,14),Position=UDim2.fromOffset(5,5),TextXAlignment=Enum.TextXAlignment.Left,TextSize=13,Text=ColorPicker.Title,TextWrapped=false,ZIndex=16,Parent=PickerFrameInner,FontFace=Library.FontFace,}, {}
 
 do
 ContextMenu.Options={}
@@ -1532,7 +1555,7 @@ end
 local Button=Library:CreateLabel{
 Active=false,
 Size=UDim2.new(1,0,0,15),
-TextSize=12,
+TextSize=13,
 Text=Str,
 ZIndex=16,
 Parent=self.Inner,
@@ -1830,6 +1853,7 @@ Size=UDim2.new(0,28,0,15),
 ZIndex=6,
 Parent=ToggleLabel,
 })
+Library:Round(PickOuter,5)
 
 local PickInner=Library:Create("Frame",{
 BackgroundColor3=Library.BackgroundColor,
@@ -1840,6 +1864,7 @@ ZIndex=7,
 Parent=PickOuter,
 })
 
+Library:Round(PickInner,5)
 Library:AddToRegistry(PickInner,{
 BackgroundColor3="BackgroundColor",
 BorderColor3="OutlineColor",
@@ -1854,7 +1879,7 @@ local DisplayLabel,
 
 
 
-ModeSelectOuter=Library:CreateLabel{Size=UDim2.new(1,0,1,0),TextSize=12,Text=Info.Default,TextWrapped=true,ZIndex=8,Parent=PickInner,},Library:Create("Frame",{
+ModeSelectOuter=Library:CreateLabel{Size=UDim2.new(1,0,1,0),TextSize=13,Text=Info.Default,TextWrapped=true,ZIndex=8,Parent=PickInner,},Library:Create("Frame",{
 BorderColor3=Color3.new(0,0,0),
 Position=UDim2.fromOffset(
 ToggleLabel.AbsolutePosition.X+ToggleLabel.AbsoluteSize.X+4,
@@ -1903,7 +1928,7 @@ local ContainerLabel,
 
 
 Modes,
-ModeButtons=Library:CreateLabel({TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,0,0,18),TextSize=12,Visible=false,ZIndex=110,Parent=Library.KeybindContainer,},true),Info.Modes or{"Always","Toggle","Hold"},{}
+ModeButtons=Library:CreateLabel({TextXAlignment=Enum.TextXAlignment.Left,Size=UDim2.new(1,0,0,18),TextSize=13,Visible=false,ZIndex=110,Parent=Library.KeybindContainer,},true),Info.Modes or{"Always","Toggle","Hold"},{}
 
 for Idx,Mode in next,Modes do
 local ModeButton,
@@ -1911,7 +1936,7 @@ local ModeButton,
 Label={},Library:CreateLabel{
 Active=false,
 Size=UDim2.new(1,0,0,15),
-TextSize=12,
+TextSize=13,
 Text=Mode,
 ZIndex=16,
 Parent=ModeSelectInner,
@@ -2228,7 +2253,7 @@ local Container=Groupbox.Container
 
 local TextLabel=Library:CreateLabel{
 Size=UDim2.new(1,-4,0,15),
-TextSize=12,
+TextSize=13,
 Text=Text,
 TextWrapped=DoesWrap or false,
 TextXAlignment=Enum.TextXAlignment.Left,
@@ -2239,7 +2264,7 @@ Parent=Container,
 if DoesWrap then
 local Y=select(
 2,
-Library:GetTextBounds(Text,Library.FontFace,12,Vector2.new(TextLabel.AbsoluteSize.X,math.huge))
+Library:GetTextBounds(Text,Library.FontFace,13,Vector2.new(TextLabel.AbsoluteSize.X,math.huge))
 )
 TextLabel.Size=UDim2.new(1,-4,0,Y)
 else
@@ -2261,7 +2286,7 @@ TextLabel.Text=Text
 if DoesWrap then
 local Y=select(
 2,
-Library:GetTextBounds(Text,Library.FontFace,12,Vector2.new(TextLabel.AbsoluteSize.X,math.huge))
+Library:GetTextBounds(Text,Library.FontFace,13,Vector2.new(TextLabel.AbsoluteSize.X,math.huge))
 )
 TextLabel.Size=UDim2.new(1,-4,0,Y)
 end
@@ -2306,10 +2331,11 @@ Button)
 local Outer=Library:Create("Frame",{
 BackgroundColor3=Color3.new(0,0,0),
 BorderColor3=Color3.new(0,0,0),
-Size=UDim2.new(1,-4,0,20),
+Size=UDim2.new(1,-4,0,26),
 ZIndex=5,
 })
 
+Library:Round(Outer,5)
 local Inner=Library:Create("Frame",{
 BackgroundColor3=Library.MainColor,
 BorderColor3=Library.OutlineColor,
@@ -2328,9 +2354,9 @@ Gradient,
 
 
 
-Label=Library:Create("UIGradient",{Rotation=90,Parent=Inner,Color=ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),},}), Library:CreateLabel{
+Label=Library:Create("UIGradient",{Rotation=90,Parent=Inner,Color=ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),},}), Library:CreateLabel{
 Size=UDim2.new(1,0,1,0),
-TextSize=12,
+TextSize=13,
 Text=Button.Text,
 ZIndex=6,
 Parent=Inner,
@@ -2339,7 +2365,7 @@ Parent=Inner,
 Library:Create("UIGradient",{
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(212,212,212)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),
 },
 Rotation=90,
 Parent=Inner,
@@ -2349,6 +2375,7 @@ Library:AddToRegistry(Outer,{
 BorderColor3="Black",
 })
 
+Library:Round(Inner,5,true)
 Library:AddToRegistry(Inner,{
 BackgroundColor3="MainColor",
 BorderColor3="OutlineColor",
@@ -2536,7 +2563,7 @@ local Container=Groupbox.Container
 
 Library:CreateLabel{
 Size=UDim2.new(1,0,0,15),
-TextSize=12,
+TextSize=13,
 Text=Info.Text,
 TextXAlignment=Enum.TextXAlignment.Left,
 ZIndex=5,
@@ -2548,13 +2575,14 @@ Groupbox:AddBlank(1)
 local TextBoxOuter=Library:Create("Frame",{
 BackgroundColor3=Color3.new(0,0,0),
 BorderColor3=Color3.new(0,0,0),
-Size=UDim2.new(1,-4,0,20),
+Size=UDim2.new(1,-4,0,26),
 ZIndex=5,
 Parent=Container,
 })
+Library:Round(TextBoxOuter,5)
 
 local TextBoxInner=Library:Create("Frame",{
-BackgroundColor3=Library.MainColor,
+BackgroundColor3=Library.BackgroundColor,
 BorderColor3=Library.OutlineColor,
 BorderMode=Enum.BorderMode.Inset,
 Size=UDim2.new(1,0,1,0),
@@ -2562,8 +2590,9 @@ ZIndex=6,
 Parent=TextBoxOuter,
 })
 
+Library:Round(TextBoxInner,5)
 Library:AddToRegistry(TextBoxInner,{
-BackgroundColor3="MainColor",
+BackgroundColor3="BackgroundColor",
 BorderColor3="OutlineColor",
 })
 
@@ -2576,7 +2605,7 @@ end
 Library:Create("UIGradient",{
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(212,212,212)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),
 },
 Rotation=90,
 Parent=TextBoxInner,
@@ -2604,7 +2633,7 @@ PlaceholderText=Info.Placeholder or"",
 
 Text=Info.Default or"",
 TextColor3=Library.FontColor,
-TextSize=12,
+TextSize=13,
 TextStrokeTransparency=0,
 TextXAlignment=Enum.TextXAlignment.Left,
 
@@ -2749,7 +2778,7 @@ Rotation=90,
 Parent=ToggleInner,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),
 },
 })
 
@@ -2761,7 +2790,7 @@ BorderColor3="OutlineColor",
 local ToggleLabel=Library:CreateLabel{
 Size=UDim2.new(0,216,1,0),
 Position=UDim2.new(1,6,0,0),
-TextSize=12,
+TextSize=13,
 Text=Info.Text,
 TextXAlignment=Enum.TextXAlignment.Left,
 ZIndex=6,
@@ -2909,8 +2938,8 @@ local Container=Groupbox.Container
 
 if not Info.Compact then
 Library:CreateLabel{
-Size=UDim2.new(1,0,0,10),
-TextSize=12,
+Size=UDim2.new(1,0,0,16),
+TextSize=13,
 Text=Info.Text,
 TextXAlignment=Enum.TextXAlignment.Left,
 TextYAlignment=Enum.TextYAlignment.Bottom,
@@ -2924,17 +2953,18 @@ end
 local SliderOuter=Library:Create("Frame",{
 BackgroundColor3=Color3.new(0,0,0),
 BorderColor3=Color3.new(0,0,0),
-Size=UDim2.new(1,-4,0,13),
+Size=UDim2.new(1,-4,0,18),
 ZIndex=5,
 Parent=Container,
 })
+Library:Round(SliderOuter,5)
 
 Library:AddToRegistry(SliderOuter,{
 BorderColor3="Black",
 })
 
 local SliderInner=Library:Create("Frame",{
-BackgroundColor3=Library.MainColor,
+BackgroundColor3=Library.BackgroundColor,
 BorderColor3=Library.OutlineColor,
 BorderMode=Enum.BorderMode.Inset,
 Size=UDim2.new(1,0,1,0),
@@ -2947,12 +2977,13 @@ Rotation=90,
 Parent=SliderInner,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),
 },
 })
 
+Library:Round(SliderInner,5)
 Library:AddToRegistry(SliderInner,{
-BackgroundColor3="MainColor",
+BackgroundColor3="BackgroundColor",
 BorderColor3="OutlineColor",
 })
 
@@ -2969,10 +3000,11 @@ Rotation=90,
 Parent=Fill,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),
 },
 })
 
+Library:Round(Fill,5)
 Library:AddToRegistry(Fill,{
 BackgroundColor3="AccentColor",
 BorderColor3="AccentColorDark",
@@ -2993,7 +3025,7 @@ BackgroundColor3="AccentColor",
 
 local DisplayLabel=Library:CreateLabel{
 Size=UDim2.new(1,0,1,0),
-TextSize=12,
+TextSize=13,
 Text="Infinite",
 ZIndex=9,
 Parent=SliderInner,
@@ -3144,8 +3176,8 @@ RelativeOffset=Groupbox.Container,0
 
 if not Info.Compact then
 Library:CreateLabel{
-Size=UDim2.new(1,0,0,10),
-TextSize=12,
+Size=UDim2.new(1,0,0,16),
+TextSize=13,
 Text=Info.Text,
 TextXAlignment=Enum.TextXAlignment.Left,
 TextYAlignment=Enum.TextYAlignment.Bottom,
@@ -3165,17 +3197,18 @@ end
 local DropdownOuter=Library:Create("Frame",{
 BackgroundColor3=Color3.new(0,0,0),
 BorderColor3=Color3.new(0,0,0),
-Size=UDim2.new(1,-4,0,20),
+Size=UDim2.new(1,-4,0,26),
 ZIndex=5,
 Parent=Container,
 })
+Library:Round(DropdownOuter,5)
 
 Library:AddToRegistry(DropdownOuter,{
 BorderColor3="Black",
 })
 
 local DropdownInner=Library:Create("Frame",{
-BackgroundColor3=Library.MainColor,
+BackgroundColor3=Library.BackgroundColor,
 BorderColor3=Library.OutlineColor,
 BorderMode=Enum.BorderMode.Inset,
 Size=UDim2.new(1,0,1,0),
@@ -3188,19 +3221,20 @@ Rotation=90,
 Parent=DropdownInner,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),
 },
 })
 
+Library:Round(DropdownInner,5)
 Library:AddToRegistry(DropdownInner,{
-BackgroundColor3="MainColor",
+BackgroundColor3="BackgroundColor",
 BorderColor3="OutlineColor",
 })
 
 Library:Create("UIGradient",{
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(212,212,212)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),
 },
 Rotation=90,
 Parent=DropdownInner,
@@ -3219,7 +3253,7 @@ local DropdownArrow,
 ItemList=Library:Create("ImageLabel",{AnchorPoint=Vector2.new(0,0.5),BackgroundTransparency=1,Position=UDim2.new(1,-16,0.5,0),Size=UDim2.new(0,12,0,12),Image="http://www.roblox.com/asset/?id=6282522798",ZIndex=8,Parent=DropdownInner,}),Library:CreateLabel{
 Position=UDim2.new(0,5,0,0),
 Size=UDim2.new(1,-5,1,0),
-TextSize=12,
+TextSize=13,
 Text="--",
 TextXAlignment=Enum.TextXAlignment.Left,
 TextWrapped=true,
@@ -3274,7 +3308,7 @@ Rotation=90,
 Parent=ListInner,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),
 },
 })
 
@@ -3378,7 +3412,7 @@ local ButtonLabel=Library:CreateLabel{
 Active=false,
 Size=UDim2.new(1,-6,1,0),
 Position=UDim2.new(0,6,0,0),
-TextSize=12,
+TextSize=13,
 Text=Value,
 TextXAlignment=Enum.TextXAlignment.Left,
 ZIndex=25,
@@ -3755,7 +3789,7 @@ end,
 local WatermarkLabel=Library:CreateLabel{
 Position=UDim2.new(0,0,0,0),
 Size=UDim2.new(1,0,1,0),
-TextSize=12,
+TextSize=13,
 TextXAlignment=Enum.TextXAlignment.Center,
 ZIndex=203,
 Parent=InnerFrame,
@@ -3861,7 +3895,7 @@ Library.Watermark.Visible=Bool
 end
 
 function Library.SetWatermark(self,Text)
-local X,Y=Library:GetTextBounds(Text,Library.FontFace,12)
+local X,Y=Library:GetTextBounds(Text,Library.FontFace,13)
 Library.Watermark.Size=UDim2.new(0,X+15,0,(Y*1.5)+3)
 Library:SetWatermarkVisibility(true)
 
@@ -3871,7 +3905,7 @@ end
 function Library.Notify(self,Text,Time)
 if not Library.Alive then return end
 Text=tostring(Text)
-local XSize,YSize=Library:GetTextBounds(Text,Library.FontFace,12)
+local XSize,YSize=Library:GetTextBounds(Text,Library.FontFace,13)
 
 YSize=YSize+7
 
@@ -3935,7 +3969,7 @@ NotifyLabel,
 
 
 
-LeftColor=Library:CreateLabel{Position=UDim2.new(0,4,0,0),Size=UDim2.new(1,-4,1,0),Text=Text,TextXAlignment=Enum.TextXAlignment.Left,TextSize=12,ZIndex=103,Parent=InnerFrame,}, Library:Create("Frame",{
+LeftColor=Library:CreateLabel{Position=UDim2.new(0,4,0,0),Size=UDim2.new(1,-4,1,0),Text=Text,TextXAlignment=Enum.TextXAlignment.Left,TextSize=13,ZIndex=103,Parent=InnerFrame,}, Library:Create("Frame",{
 BackgroundColor3=Library.AccentColor,
 BorderSizePixel=0,
 Position=UDim2.new(0,-1,0,-1),
@@ -3986,7 +4020,7 @@ if typeof(Config.Position)~="UDim2"then
 Config.Position=UDim2.fromOffset(175,50)
 end
 if typeof(Config.Size)~="UDim2"then
-Config.Size=UDim2.fromOffset(760,640)
+Config.Size=UDim2.fromOffset(920,660)
 end
 
 if Config.Center then
@@ -4010,9 +4044,35 @@ ZIndex=1,
 Parent=ScreenGui,
 })
 
-Library:MakeDraggable(Outer,42)
+Library:MakeDraggable(Outer,58)
+Library:Round(Outer,12)
 Library.ScaleControl=Library:Create("UIScale",{Scale=1,Parent=Outer})
 Window.Outer=Outer
+local scaleControl,
+viewportConnection=(Library.ScaleControl)
+function Window.FitToViewport(self)
+local scale,
+camera=Library.RequestedUIScale or 1,workspace.CurrentCamera
+if camera then
+local view=camera.ViewportSize
+if view and view.X>0 and view.Y>0 then
+scale=math.min(scale,math.max(0.1,(view.X-32)/Config.Size.X.Offset),math.max(0.1,(view.Y-32)/Config.Size.Y.Offset))
+end
+end
+scaleControl.Scale=scale
+end local watchCamera=function()
+
+if viewportConnection then Runtime.Release(viewportConnection,true)viewportConnection=nil end
+local camera=workspace.CurrentCamera
+if camera then
+viewportConnection=Runtime.Own(camera:GetPropertyChangedSignal"ViewportSize":Connect(function()Window:FitToViewport()end))
+end
+Window:FitToViewport()end
+
+if workspace.GetPropertyChangedSignal then
+Runtime.Own(workspace:GetPropertyChangedSignal"CurrentCamera":Connect(watchCamera))
+end
+watchCamera()
 
 local Glow=Library:Create("ImageLabel",{
 Parent=Outer,
@@ -4022,7 +4082,7 @@ BorderColor3=Color3.fromRGB(0,0,0),
 BackgroundColor3=Color3.fromRGB(255,255,255),
 Image="http://www.roblox.com/asset/?id=18245826428",
 BackgroundTransparency=1,
-ImageTransparency=0.94,
+ImageTransparency=0.97,
 Position=UDim2.new(0,-20,0,-20),
 Size=UDim2.new(1,40,1,40),
 ZIndex=1,
@@ -4044,6 +4104,7 @@ ZIndex=1,
 Parent=Outer,
 })
 
+Library:Round(Inner,12,true)
 Library:AddToRegistry(Inner,{
 BackgroundColor3="MainColor",
 BorderColor3="AccentColor",
@@ -4059,11 +4120,13 @@ local WindowLabel,
 
 
 
-MainSectionOuter=Library:CreateLabel{Position=UDim2.new(0,16,0,0),TextSize=18,Size=UDim2.new(0,0,0,42),Text=Config.Title or"",TextXAlignment=Enum.TextXAlignment.Left,ZIndex=1,Parent=Inner,},Library:Create("Frame",{
+
+MainSectionOuter=Library:CreateLabel{Position=UDim2.new(0,24,0,10),TextSize=24,FontFace=Font.fromEnum(Enum.Font.BuilderSansBold),Size=UDim2.new(0,140,0,32),Text=Config.Title or"",TextXAlignment=Enum.TextXAlignment.Left,ZIndex=1,Parent=Inner,},Library:Create("Frame",{
 BackgroundColor3=Library.BackgroundColor,
 BorderColor3=Library.OutlineColor,
-Position=UDim2.new(0,12,0,42),
-Size=UDim2.new(1,-24,1,-54),
+Position=UDim2.new(0,12,0,58),
+Size=UDim2.new(1,-24,1,-70),
+BorderSizePixel=0,
 ZIndex=1,
 Parent=Inner,
 })
@@ -4087,10 +4150,25 @@ Library:AddToRegistry(MainSectionInner,{
 BackgroundColor3="BackgroundColor",
 })
 
+Library:CreateLabel{Text=Config.Subtitle or"CLIENT CONTROL",TextSize=11,
+TextXAlignment=Enum.TextXAlignment.Right,Position=UDim2.new(1,-280,0,19),
+Size=UDim2.fromOffset(250,18),Parent=Inner,ZIndex=2}
+local SectionTitle,
+
+
+SectionDescription,
+
+
+descriptions=Library:CreateLabel{Text="",TextSize=22,FontFace=Font.fromEnum(Enum.Font.BuilderSansBold),TextXAlignment=Enum.TextXAlignment.Left,Position=UDim2.new(0,186,0,12),Size=UDim2.new(1,-202,0,30),Parent=MainSectionInner,ZIndex=3},Library:CreateLabel{Text="",TextSize=12,TextXAlignment=Enum.TextXAlignment.Left,Position=UDim2.new(0,186,0,44),Size=UDim2.new(1,-202,0,20),Parent=MainSectionInner,ZIndex=3},{Legit="Precision and targeting",Rage="Melee and combat",Visuals="World and weapon presentation",
+Misc="Movement and character",Settings="Preferences, profiles and session health",Content="Browse the game content library"}
+Library:CreateLabel{Text="WORKSPACE",TextSize=10,TextXAlignment=Enum.TextXAlignment.Left,
+Position=UDim2.fromOffset(16,16),Size=UDim2.fromOffset(148,18),Parent=MainSectionInner,ZIndex=3}
+Library:CreateLabel{Text="84e client\nPotassium edition",TextSize=11,TextXAlignment=Enum.TextXAlignment.Left,
+Position=UDim2.new(0,16,1,-48),Size=UDim2.fromOffset(148,36),Parent=MainSectionInner,ZIndex=3}
 local TabArea=Library:Create("Frame",{
 BackgroundTransparency=1,
-Position=UDim2.new(0,8,0,8),
-Size=UDim2.new(1,-16,0,30),
+Position=UDim2.new(0,12,0,46),
+Size=UDim2.new(0,152,1,-108),
 ZIndex=1,
 Parent=MainSectionInner,
 })
@@ -4102,12 +4180,13 @@ local TabListLayout,
 
 
 
-
-TabContainer=Library:Create("UIListLayout",{Padding=UDim.new(0,Config.TabPadding),FillDirection=Enum.FillDirection.Horizontal,SortOrder=Enum.SortOrder.LayoutOrder,HorizontalFlex=Enum.UIFlexAlignment.Fill,Parent=TabArea,}),Library:Create("Frame",{
+TabContainer=Library:Create("UIListLayout",{Padding=UDim.new(0,8),FillDirection=Enum.FillDirection.Vertical,SortOrder=Enum.SortOrder.LayoutOrder,Parent=TabArea,}),Library:Create("Frame",{
 BackgroundColor3=Library.MainColor,
 BorderColor3=Library.OutlineColor,
-Position=UDim2.new(0,8,0,44),
-Size=UDim2.new(1,-16,1,-52),
+Position=UDim2.new(0,178,0,78),
+Size=UDim2.new(1,-190,1,-90),
+BackgroundTransparency=1,
+BorderSizePixel=0,
 ZIndex=2,
 Parent=MainSectionInner,
 })
@@ -4121,19 +4200,24 @@ function Window.SetWindowTitle(self,Title)
 WindowLabel.Text=Title
 end
 
-function Window.AddTab(self,Name)local
+function Window.AddTab(self,Name,Owner)local
+TabArea, 
+TabContainer, 
+TabListLayout, 
+siblings, 
 Tab, 
 
 
 
 
 
-TabButtonWidth, 
+TabButtonWidth=Owner and Owner.PageNav or TabArea, Owner and Owner.PageContainer or TabContainer, Owner and Owner.PageLayout or TabListLayout, Owner and Owner.Pages or Window.Tabs, {Name=Name,ParentTab=Owner,Pages={},Groupboxes={},Tabboxes={},}, Library:GetTextBounds(Name,Library.FontFace,16)
 
-TabButton={Name=Name,Groupboxes={},Tabboxes={},}, Library:GetTextBounds(Name,Library.FontFace,16), Library:Create("Frame",{
+local TabButton=Library:Create("Frame",{
 BackgroundColor3=Library.BackgroundColor,
 BorderColor3=Library.OutlineColor,
-Size=UDim2.new(0,12,1,0),
+Size=Owner and UDim2.new(0,12,1,0)or UDim2.new(1,0,0,42),
+BorderSizePixel=0,
 ZIndex=1,
 Parent=TabArea,
 })
@@ -4143,15 +4227,16 @@ Rotation=-90,
 Parent=TabButton,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),
 },
 })
 
 Library:AddToRegistry(TabButton,{
 BackgroundColor3="BackgroundColor",
 BorderColor3="OutlineColor",
-})local
+})
 
+Library:Round(TabButton,7)local
 TabButtonLabel, 
 
 
@@ -4160,18 +4245,21 @@ TabButtonLabel,
 
 
 
-Blocker=Library:CreateLabel{Position=UDim2.new(0,0,0,0),Size=UDim2.new(1,0,1,-1),Text=Name,ZIndex=1,Parent=TabButton,}, Library:Create("Frame",{
-BackgroundColor3=Library.MainColor,
+
+
+
+Blocker=Library:CreateLabel{Position=UDim2.new(0,0,0,0),Size=UDim2.new(1,-24,1,-1),Position=UDim2.fromOffset(12,0),TextXAlignment=Owner and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left,TextSize=14,Text=Name,ZIndex=1,Parent=TabButton,}, Library:Create("Frame",{
+BackgroundColor3=Library.AccentColor,
 BorderSizePixel=0,
-Position=UDim2.new(0,0,1,0),
-Size=UDim2.new(1,0,0,1),
+Position=Owner and UDim2.new(0,8,1,-2)or UDim2.new(0,0,0,10),
+Size=Owner and UDim2.new(1,-16,0,2)or UDim2.new(0,3,1,-20),
 BackgroundTransparency=1,
 ZIndex=3,
 Parent=TabButton,
 })
 
 Library:AddToRegistry(Blocker,{
-BackgroundColor3="MainColor",
+BackgroundColor3="AccentColor",
 })
 
 local TabFrame=Library:Create("Frame",{
@@ -4206,7 +4294,8 @@ LeftSide,
 
 
 
-RightSide=Library:Create("UIGradient",{Rotation=-90,Parent=TabFrame,Color=ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),},}), Library:Create("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,Position=UDim2.new(0,7,0,7),Size=UDim2.new(0.5,-10,1,-14),CanvasSize=UDim2.new(0,0,0,0),BottomImage="",TopImage="",ScrollBarThickness=0,ZIndex=2,Parent=TabFrame,}), Library:Create("ScrollingFrame",{
+
+RightSide=Library:Create("UIGradient",{Rotation=-90,Parent=TabFrame,Color=ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255)),},}), Library:Create("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,Position=UDim2.new(0,7,0,7),Size=UDim2.new(0.5,-10,1,-14),CanvasSize=UDim2.new(0,0,0,0),BottomImage="",TopImage="",ScrollBarThickness=3,ScrollBarImageColor3=Library.OutlineColor,ZIndex=2,Parent=TabFrame,}), Library:Create("ScrollingFrame",{
 BackgroundTransparency=1,
 BorderSizePixel=0,
 Position=UDim2.new(0.5,5,0,7),
@@ -4214,7 +4303,8 @@ Size=UDim2.new(0.5,-10,1,-14),
 CanvasSize=UDim2.new(0,0,0,0),
 BottomImage="",
 TopImage="",
-ScrollBarThickness=0,
+ScrollBarThickness=3,
+ScrollBarImageColor3=Library.OutlineColor,
 ZIndex=2,
 Parent=TabFrame,
 })
@@ -4241,8 +4331,29 @@ Side.CanvasSize=UDim2.fromOffset(0,Side.UIListLayout.AbsoluteContentSize.Y)
 end)
 end
 
-function Tab.ShowTab(self)
-for _,Tab in next,Window.Tabs do
+Tab.Frame=TabFrame
+Tab.Button=TabButton
+function Tab.ReflowColumns(self)
+local hasRight=false
+for _,child in RightSide:GetChildren()do if child:IsA"Frame"then hasRight=true break end end
+LeftSide.Size=hasRight and UDim2.new(0.5,-10,1,-14)or UDim2.new(1,-14,1,-14)
+RightSide.Visible=hasRight
+end
+function Tab.AddPage(self,PageName)
+if not self.PageNav then
+LeftSide.Visible=false RightSide.Visible=false
+self.PageNav=Library:Create("Frame",{BackgroundTransparency=1,
+Position=UDim2.fromOffset(7,0),Size=UDim2.new(1,-14,0,34),Parent=TabFrame,ZIndex=3})
+self.PageLayout=Library:Create("UIListLayout",{Padding=UDim.new(0,8),FillDirection=Enum.FillDirection.Horizontal,
+HorizontalFlex=Enum.UIFlexAlignment.Fill,SortOrder=Enum.SortOrder.LayoutOrder,Parent=self.PageNav})
+self.PageContainer=Library:Create("Frame",{BackgroundTransparency=1,
+Position=UDim2.fromOffset(0,46),Size=UDim2.new(1,0,1,-46),Parent=TabFrame,ZIndex=2})
+end
+return Window:AddTab(PageName,self)
+end
+function Tab.ShowTab(self,SkipParent)
+if Owner and not SkipParent then Owner:ShowTab()end
+for _,Tab in next,siblings do
 Tab:HideTab()
 end
 
@@ -4250,6 +4361,15 @@ Blocker.BackgroundTransparency=0
 TabButton.BackgroundColor3=Library.MainColor
 Library.RegistryMap[TabButton].Properties.BackgroundColor3="MainColor"
 TabFrame.Visible=true
+Tab.Visible=true
+if Owner then
+Owner.CurrentPage=Tab
+if Owner.Visible then if Owner.Visible then SectionTitle.Text=Owner.Name.." / "..Name end end
+else
+SectionTitle.Text=Name
+SectionDescription.Text=descriptions[Name]or"Client preferences"
+if Tab.CurrentPage then SectionTitle.Text=Name.." / "..Tab.CurrentPage.Name end
+end
 end
 
 function Tab.HideTab(self)
@@ -4258,6 +4378,7 @@ Blocker.BackgroundTransparency=1
 TabButton.BackgroundColor3=Library.BackgroundColor
 Library.RegistryMap[TabButton].Properties.BackgroundColor3="BackgroundColor"
 TabFrame.Visible=false
+Tab.Visible=false
 end
 
 function Tab.SetLayoutOrder(self,Position)
@@ -4269,7 +4390,7 @@ function Tab.AddGroupbox(self,Info)
 local Groupbox,
 
 BoxOuter={Name=Info.Name,OwnerTab=Tab},Library:Create("Frame",{
-BackgroundColor3=Library.BackgroundColor,
+BackgroundColor3=Library.MainColor,
 BorderColor3=Library.OutlineColor,
 BorderMode=Enum.BorderMode.Inset,
 Size=UDim2.new(1,0,0,509),
@@ -4278,12 +4399,13 @@ Parent=Info.Side==1 and LeftSide or RightSide,
 })
 
 Library:AddToRegistry(BoxOuter,{
-BackgroundColor3="BackgroundColor",
+BackgroundColor3="MainColor",
 BorderColor3="OutlineColor",
 })
 
+Library:Round(BoxOuter,8)
 local BoxInner=Library:Create("Frame",{
-BackgroundColor3=Library.BackgroundColor,
+BackgroundColor3=Library.MainColor,
 BorderColor3=Color3.new(0,0,0),
 
 Size=UDim2.new(1,-2,1,-2),
@@ -4292,11 +4414,13 @@ ZIndex=4,
 Parent=BoxOuter,
 })
 
+Library:Round(BoxInner,8,true)
 Library:AddToRegistry(BoxInner,{
-BackgroundColor3="BackgroundColor",
+BackgroundColor3="MainColor",
 })
 
 local Highlight=Library:Create("Frame",{
+Visible=false,
 BackgroundColor3=Library.AccentColor,
 BorderSizePixel=0,
 Size=UDim2.new(1,0,0,2),
@@ -4318,10 +4442,11 @@ GroupboxLabel,
 
 
 
-Container=Library:CreateLabel{Size=UDim2.new(1,0,0,18),Position=UDim2.new(0,4,0,2),TextSize=12,Text=Info.Name,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=5,Parent=BoxInner,}, Library:Create("Frame",{
+
+Container=Library:CreateLabel{Size=UDim2.new(1,-24,0,24),Position=UDim2.new(0,12,0,4),FontFace=Font.fromEnum(Enum.Font.BuilderSansMedium),TextSize=14,Text=Info.Name,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=5,Parent=BoxInner,}, Library:Create("Frame",{
 BackgroundTransparency=1,
-Position=UDim2.new(0,4,0,20),
-Size=UDim2.new(1,-4,1,-20),
+Position=UDim2.new(0,12,0,32),
+Size=UDim2.new(1,-24,1,-32),
 ZIndex=1,
 Parent=BoxInner,
 })
@@ -4341,7 +4466,7 @@ Size=Size+Element.Size.Y.Offset
 end
 end
 
-BoxOuter.Size=UDim2.new(1,0,0,20+Size+2+2)
+BoxOuter.Size=UDim2.new(1,0,0,32+Size+12)
 end
 
 Groupbox.Container=Container
@@ -4350,6 +4475,7 @@ setmetatable(Groupbox,BaseGroupbox)
 Groupbox:AddBlank(3)
 Groupbox:Resize()
 
+Tab:ReflowColumns()
 Tab.Groupboxes[Info.Name]=Groupbox
 
 return Groupbox
@@ -4383,6 +4509,7 @@ BackgroundColor3="BackgroundColor",
 BorderColor3="OutlineColor",
 })
 
+Library:Round(BoxOuter,8)
 local BoxInner=Library:Create("Frame",{
 BackgroundColor3=Library.BackgroundColor,
 BorderColor3=Color3.new(0,0,0),
@@ -4393,11 +4520,13 @@ ZIndex=4,
 Parent=BoxOuter,
 })
 
+Library:Round(BoxInner,8,true)
 Library:AddToRegistry(BoxInner,{
 BackgroundColor3="BackgroundColor",
 })
 
 local Highlight=Library:Create("Frame",{
+Visible=false,
 BackgroundColor3=Library.AccentColor,
 BorderSizePixel=0,
 Size=UDim2.new(1,0,0,2),
@@ -4411,8 +4540,8 @@ BackgroundColor3="AccentColor",
 
 local TabboxButtons=Library:Create("Frame",{
 BackgroundTransparency=1,
-Position=UDim2.new(0,0,0,1),
-Size=UDim2.new(1,0,0,18),
+Position=UDim2.new(0,8,0,4),
+Size=UDim2.new(1,-16,0,28),
 ZIndex=5,
 Parent=BoxInner,
 })
@@ -4448,7 +4577,7 @@ ButtonLabel,
 
 
 
-Block=Library:CreateLabel{Size=UDim2.new(1,0,1,0),TextSize=12,Text=Name,TextXAlignment=Enum.TextXAlignment.Center,ZIndex=7,Parent=Button,}, Library:Create("Frame",{
+Block=Library:CreateLabel{Size=UDim2.new(1,0,1,0),TextSize=13,Text=Name,TextXAlignment=Enum.TextXAlignment.Center,ZIndex=7,Parent=Button,}, Library:Create("Frame",{
 BackgroundColor3=Library.BackgroundColor,
 BorderSizePixel=0,
 Position=UDim2.new(0,0,1,0),
@@ -4464,8 +4593,8 @@ BackgroundColor3="BackgroundColor",
 
 local Container=Library:Create("Frame",{
 BackgroundTransparency=1,
-Position=UDim2.new(0,4,0,20),
-Size=UDim2.new(1,-4,1,-20),
+Position=UDim2.new(0,12,0,36),
+Size=UDim2.new(1,-24,1,-36),
 ZIndex=1,
 Visible=false,
 Parent=BoxInner,
@@ -4524,7 +4653,7 @@ Size=Size+Element.Size.Y.Offset
 end
 end
 
-BoxOuter.Size=UDim2.new(1,0,0,20+Size+2+2)
+BoxOuter.Size=UDim2.new(1,0,0,36+Size+12)
 end
 
 Button.InputBegan:Connect(function(Input)
@@ -4552,6 +4681,7 @@ end
 return Tab
 end
 
+Tab:ReflowColumns()
 Tab.Tabboxes[Info.Name or""]=Tabbox
 
 return Tabbox
@@ -4572,11 +4702,12 @@ end
 end)
 
 
-if#TabContainer:GetChildren()==1 then
-Tab:ShowTab()
+if next(siblings)==nil then
+Tab:ShowTab(true)
 end
 
-Window.Tabs[Name]=Tab
+siblings[Name]=Tab
+Tab:ReflowColumns()
 return Tab
 end
 
@@ -4701,12 +4832,12 @@ Cache={}
 TransparencyCache[Desc]=Cache
 end
 
-for _,Prop in next,Properties do local __DARKLUA_CONTINUE_80=false repeat
+for _,Prop in next,Properties do local __DARKLUA_CONTINUE_83=false repeat
 if not Cache[Prop]then
 Cache[Prop]=Desc[Prop]
 end
 
-if Cache[Prop]==1 then __DARKLUA_CONTINUE_80=true
+if Cache[Prop]==1 then __DARKLUA_CONTINUE_83=true
 break
 end
 
@@ -4714,7 +4845,7 @@ TweenService:Create(
 Desc,
 TweenInfo.new(FadeTime,Enum.EasingStyle.Linear),
 {[Prop]=Toggled and Cache[Prop]or 1}
-):Play()__DARKLUA_CONTINUE_80=true until true if not __DARKLUA_CONTINUE_80 then break end
+):Play()__DARKLUA_CONTINUE_83=true until true if not __DARKLUA_CONTINUE_83 then break end
 end
 end
 
@@ -4949,9 +5080,16 @@ Panels=init.b(),init.c(),init.g(),init.h(),init.l(),init.m(),init.f(),game:GetSe
 function Panels.Build(library,window,manager,context)
 context=context or{}
 local options,
-tools,
-diagnostics,
-content,report=getgenv().Options,window:AddTab"Tools",window:AddTab"Diagnostics",window:AddTab"Content",function(
+pages=getgenv().Options,context.SettingsPages
+if not pages then
+local settings=window.Tabs.Settings or window:AddTab"Settings"
+settings:SetLayoutOrder(6)
+pages={General=settings:AddPage"General",Appearance=settings:AddPage"Appearance",
+Profiles=settings:AddPage"Profiles",Diagnostics=settings:AddPage"Diagnostics"}
+end
+local tools,diagnostics,
+content=pages.General,pages.Diagnostics,window:AddTab"Content"
+content:SetLayoutOrder(5)local report=function(
 ok, err)
 library:Notify(ok and"Completed"or Runtime.Sanitize(err or"operation failed"))end local export, 
 
@@ -5034,9 +5172,9 @@ local conflicts=Navigation.Conflicts()
 conflictLabel:SetText(#conflicts>0 and table.concat(conflicts,"\n")or"No active keybind conflicts")
 end)
 
-local access=tools:AddRightGroupbox"Accessibility"
+local access=pages.Appearance:AddRightGroupbox"Accessibility"
 access:AddSlider("App_UIScale",{Text="UI scale",Default=1,Min=0.75,Max=1.5,Rounding=2,Callback=function(value)
-if library.ScaleControl then library.ScaleControl.Scale=value end
+library:SetUIScale(value)
 end})
 access:AddSlider("App_TextScale",{Text="Text scale",Default=1,Min=0.8,Max=1.5,Rounding=2,Callback=function(value)library:SetTextScale(value)end})
 access:AddToggle("App_ReducedMotion",{Text="Reduced motion",Default=false,Callback=function(value)
@@ -5065,7 +5203,7 @@ end
 library:UpdateColorsUsingRegistry()
 end})
 
-local profiles=tools:AddLeftGroupbox"Profile management"
+local profiles=pages.Profiles:AddLeftGroupbox"Profile management"
 profiles:AddInput("App_ProfileSource",{Text="Source profile",Default=""})
 profiles:AddInput("App_ProfileDestination",{Text="New profile name",Default=""})
 profiles:AddInput("App_ProfileJSON",{Text="Import JSON",Default=""})
@@ -5093,7 +5231,7 @@ end)
 
 if context.World then
 local world,
-visual=context.World,tools:AddRightGroupbox"Visual ownership and preview"
+visual=context.World,pages.Appearance:AddLeftGroupbox"Visual ownership and preview"
 library:OnUnload(function()
 if not manager.Previewing then return end
 world.CancelPreview()
@@ -5125,7 +5263,7 @@ library:AttemptSave()
 end)
 end
 
-local budget=tools:AddRightGroupbox"Visual and audio budgets"
+local budget=pages.General:AddRightGroupbox"Visual and audio budgets"
 budget:AddDropdown("App_Quality",{Text="Cosmetic quality",Values={"Low","Medium","High"},Default="Medium",Callback=function(value)
 local limits={Low={32,4},Medium={128,8},High={256,16}}
 local chosen=limits[value]or limits.Medium
@@ -5327,14 +5465,14 @@ count=count+1
 end
 if count~=#data.objects or count>1000 then return false,"invalid profile array size"end
 local entries,seen={},{}
-for _,entry in data.objects do local __DARKLUA_CONTINUE_106=false repeat
+for _,entry in data.objects do local __DARKLUA_CONTINUE_109=false repeat
 if type(entry)~="table"or type(entry.idx)~="string"or type(entry.type)~="string"then
 return false,"invalid profile entry"
 end
 if seen[entry.idx]then return false,"duplicate setting: "..entry.idx end
 seen[entry.idx]=true
 local object=entry.type=="Toggle"and Toggles[entry.idx]or Options[entry.idx]
-if not object or self.Ignore[entry.idx]then __DARKLUA_CONTINUE_106=true break end
+if not object or self.Ignore[entry.idx]then __DARKLUA_CONTINUE_109=true break end
 if object.Type~=entry.type or not self.Parser[entry.type]then return false,"setting type mismatch: "..entry.idx end
 local value=table.clone(entry)
 if entry.type=="Toggle"then
@@ -5363,7 +5501,7 @@ if type(key)~="string"or type(enabled)~="boolean"then return false,"invalid sele
 end
 elseif entry.value~=nil and type(entry.value)~="string"then return false,"invalid selection: "..entry.idx end
 end
-table.insert(entries,value)__DARKLUA_CONTINUE_106=true until true if not __DARKLUA_CONTINUE_106 then break end
+table.insert(entries,value)__DARKLUA_CONTINUE_109=true until true if not __DARKLUA_CONTINUE_109 then break end
 end
 local priority={AllowUnsafeFeatures=0,ChantSpamGender=1,ChantSpamNation=2,ChantSpamSet=3,BypassRangeCheck=4}
 table.sort(entries,function(a,b)
@@ -5667,20 +5805,20 @@ return Value
 end
 end
 
-for Index=1,#Modules.GarbageCollection do local __DARKLUA_CONTINUE_117=false repeat
+for Index=1,#Modules.GarbageCollection do local __DARKLUA_CONTINUE_120=false repeat
 local Value=Modules.GarbageCollection[Index]
 
-if not Value or typeof(Value)~="function"then __DARKLUA_CONTINUE_117=true
+if not Value or typeof(Value)~="function"then __DARKLUA_CONTINUE_120=true
 break
 end
 
 local source=debug.info(Value,"s")
-if not source or not string_find(source,Name,1,true)then __DARKLUA_CONTINUE_117=true
+if not source or not string_find(source,Name,1,true)then __DARKLUA_CONTINUE_120=true
 break
 end
 
 local env=getfenv(Value)
-if typeof(env)~="table"then __DARKLUA_CONTINUE_117=true
+if typeof(env)~="table"then __DARKLUA_CONTINUE_120=true
 break
 end
 
@@ -5694,7 +5832,7 @@ Module=env.script,
 }
 
 return Module
-end __DARKLUA_CONTINUE_117=true until true if not __DARKLUA_CONTINUE_117 then break end
+end __DARKLUA_CONTINUE_120=true until true if not __DARKLUA_CONTINUE_120 then break end
 end
 
 return nil
@@ -5710,24 +5848,24 @@ local Variables,
 GarbageCollection={Cache={},Captured={},},getgc(true)
 
 Variables.VariablesIndex=(LPH_JIT_MAX(function()
-for i=1,#GarbageCollection do local __DARKLUA_CONTINUE_118=false repeat
+for i=1,#GarbageCollection do local __DARKLUA_CONTINUE_121=false repeat
 local Value=GarbageCollection[i]
 
-if typeof(Value)~="function"then __DARKLUA_CONTINUE_118=true
+if typeof(Value)~="function"then __DARKLUA_CONTINUE_121=true
 break
 end
 
 local info=debug.getinfo(Value)
 
-if not info or not string.match(info.source,"ReplicatedStorage.Variables")then __DARKLUA_CONTINUE_118=true
+if not info or not string.match(info.source,"ReplicatedStorage.Variables")then __DARKLUA_CONTINUE_121=true
 break
 end
 
-if info.name=="index"then __DARKLUA_CONTINUE_118=true
+if info.name=="index"then __DARKLUA_CONTINUE_121=true
 break
 end
 
-return Value until true if not __DARKLUA_CONTINUE_118 then break end
+return Value until true if not __DARKLUA_CONTINUE_121 then break end
 end
 
 return nil
@@ -5975,16 +6113,16 @@ if typeof(upvalue)~="table"then
 return nil
 end
 
-for _,v in upvalue do local __DARKLUA_CONTINUE_124=false repeat
-if typeof(v)~="function"then __DARKLUA_CONTINUE_124=true
+for _,v in upvalue do local __DARKLUA_CONTINUE_127=false repeat
+if typeof(v)~="function"then __DARKLUA_CONTINUE_127=true
 break
 end
 
-if debug.info(v,"n")~="FireServer"then __DARKLUA_CONTINUE_124=true
+if debug.info(v,"n")~="FireServer"then __DARKLUA_CONTINUE_127=true
 break
 end
 
-return v until true if not __DARKLUA_CONTINUE_124 then break end
+return v until true if not __DARKLUA_CONTINUE_127 then break end
 end
 
 return nil
@@ -6150,43 +6288,43 @@ end
 
 local Players=Players:GetPlayers()
 
-for i=1,#Players do local __DARKLUA_CONTINUE_127=false repeat
+for i=1,#Players do local __DARKLUA_CONTINUE_130=false repeat
 local Player=Players[i]
 
-if Player==LocalPlayer then __DARKLUA_CONTINUE_127=true
+if Player==LocalPlayer then __DARKLUA_CONTINUE_130=true
 break
 end
 
-if not Player.Character then __DARKLUA_CONTINUE_127=true
+if not Player.Character then __DARKLUA_CONTINUE_130=true
 break
 end
 
 local Character=Player.Character
 local HumanoidRootPart=Character and Character:FindFirstChild"HumanoidRootPart"
 
-if not HumanoidRootPart then __DARKLUA_CONTINUE_127=true
+if not HumanoidRootPart then __DARKLUA_CONTINUE_130=true
 break
 end
 
 if Player.Team==LocalPlayer.Team then
-Disable(HumanoidRootPart)__DARKLUA_CONTINUE_127=true
+Disable(HumanoidRootPart)__DARKLUA_CONTINUE_130=true
 break
 end
 
 local Humanoid=Character:FindFirstChild"Humanoid"
 
 if not Humanoid then
-Disable(HumanoidRootPart)__DARKLUA_CONTINUE_127=true
+Disable(HumanoidRootPart)__DARKLUA_CONTINUE_130=true
 break
 end
 
 if Humanoid.Health<=0 then
-Disable(HumanoidRootPart)__DARKLUA_CONTINUE_127=true
+Disable(HumanoidRootPart)__DARKLUA_CONTINUE_130=true
 break
 end
 
 if Humanoid.MaxHealth>100 then
-Disable(HumanoidRootPart)__DARKLUA_CONTINUE_127=true
+Disable(HumanoidRootPart)__DARKLUA_CONTINUE_130=true
 break
 end
 
@@ -6194,7 +6332,7 @@ Capture(HumanoidRootPart)
 HumanoidRootPart.Color=HitboxExtender.Config.Color
 HumanoidRootPart.Material=HitboxExtender.Config.Material
 HumanoidRootPart.Transparency=getgenv().Options and getgenv().Options.HitboxExtenderColor and getgenv().Options.HitboxExtenderColor.Transparency or HitboxExtender.Config.Transparency
-HumanoidRootPart.Size=Vector3.new(2,2,2)*HitboxExtender.Config.SizeIncrease __DARKLUA_CONTINUE_127=true until true if not __DARKLUA_CONTINUE_127 then break end
+HumanoidRootPart.Size=Vector3.new(2,2,2)*HitboxExtender.Config.SizeIncrease __DARKLUA_CONTINUE_130=true until true if not __DARKLUA_CONTINUE_130 then break end
 end
 end)
 
@@ -6244,11 +6382,11 @@ maximum=math.clamp(math.floor(maximum),1,512)
 while#Tracers.Segments>maximum do Remove(1)end
 local camera,
 now=workspace.CurrentCamera,os.clock()
-for index=#Tracers.Segments,1,-1 do local __DARKLUA_CONTINUE_131=false repeat
+for index=#Tracers.Segments,1,-1 do local __DARKLUA_CONTINUE_134=false repeat
 local segment=Tracers.Segments[index]
-if segment.Expires<=now then Remove(index)__DARKLUA_CONTINUE_131=true break end
+if segment.Expires<=now then Remove(index)__DARKLUA_CONTINUE_134=true break end
 local line=segment.Line
-if not camera then line.Visible=false __DARKLUA_CONTINUE_131=true break end
+if not camera then line.Visible=false __DARKLUA_CONTINUE_134=true break end
 local a,aVisible=camera:WorldToViewportPoint(segment.From)
 local b,bVisible=camera:WorldToViewportPoint(segment.To)
 line.Visible=aVisible and bVisible
@@ -6256,7 +6394,7 @@ if line.Visible then
 line.From=Vector2.new(a.X,a.Y)
 line.To=Vector2.new(b.X,b.Y)
 line.Transparency=math.clamp((segment.Expires-now)/0.15,0,1)
-end __DARKLUA_CONTINUE_131=true until true if not __DARKLUA_CONTINUE_131 then break end
+end __DARKLUA_CONTINUE_134=true until true if not __DARKLUA_CONTINUE_134 then break end
 end
 end
 
@@ -6365,59 +6503,59 @@ FlagBearerDistance,
 
 Players,Closest,Part,FlagBearerClosest,FlagBearerPart=math.huge,false,math.huge,(Players:GetPlayers())
 
-for i=1,#Players do local __DARKLUA_CONTINUE_132=false repeat
+for i=1,#Players do local __DARKLUA_CONTINUE_135=false repeat
 local Player=Players[i]
 
-if Player==LocalPlayer then __DARKLUA_CONTINUE_132=true
+if Player==LocalPlayer then __DARKLUA_CONTINUE_135=true
 break
 end
 
-if Player.Team==LocalPlayer.Team then __DARKLUA_CONTINUE_132=true
+if Player.Team==LocalPlayer.Team then __DARKLUA_CONTINUE_135=true
 break
 end
 
 local Character=Player.Character
 
-if not Character then __DARKLUA_CONTINUE_132=true
+if not Character then __DARKLUA_CONTINUE_135=true
 break
 end
 
 local MaxDistance,CharacterDistance=
 SilentAim.Config.Distance^2,Camera.CFrame.Position-Player.Character:GetPivot().Position
-if CharacterDistance:Dot(CharacterDistance)>MaxDistance then __DARKLUA_CONTINUE_132=true
+if CharacterDistance:Dot(CharacterDistance)>MaxDistance then __DARKLUA_CONTINUE_135=true
 break
 end
 
 local Humanoid=Character:FindFirstChild"Humanoid"
 
-if not Humanoid then __DARKLUA_CONTINUE_132=true
+if not Humanoid then __DARKLUA_CONTINUE_135=true
 break
 end
 
-if Humanoid.Health<=0 then __DARKLUA_CONTINUE_132=true
+if Humanoid.Health<=0 then __DARKLUA_CONTINUE_135=true
 break
 end
 
-if Humanoid.MaxHealth>100 then __DARKLUA_CONTINUE_132=true
+if Humanoid.MaxHealth>100 then __DARKLUA_CONTINUE_135=true
 break
 end
 
 local TargetPart=Character:FindFirstChild(SilentAim.Config.Hitpart)
 
-if not TargetPart then __DARKLUA_CONTINUE_132=true
+if not TargetPart then __DARKLUA_CONTINUE_135=true
 break
 end
 
 local ViewportPoint,OnScreen=Camera:WorldToViewportPoint(TargetPart.Position)
 
-if not OnScreen then __DARKLUA_CONTINUE_132=true
+if not OnScreen then __DARKLUA_CONTINUE_135=true
 break
 end
 
 local Vector=Vector2.new(ViewportPoint.X,ViewportPoint.Y)
 local DistanceToMouse=(UserInputService:GetMouseLocation()-Vector).Magnitude
 
-if DistanceToMouse>Distance then __DARKLUA_CONTINUE_132=true
+if DistanceToMouse>Distance then __DARKLUA_CONTINUE_135=true
 break
 end
 
@@ -6450,7 +6588,7 @@ Closest=Player
 end
 end
 end
-end __DARKLUA_CONTINUE_132=true until true if not __DARKLUA_CONTINUE_132 then break end
+end __DARKLUA_CONTINUE_135=true until true if not __DARKLUA_CONTINUE_135 then break end
 end
 
 if SilentAim.Config.FlagBearerPriority and FlagBearer then
@@ -6572,22 +6710,22 @@ Core.Hashes.simulateFirearmProjectile,
 )
 or LPH_JIT_MAX(function()
 local GarbageCollection=getgc(false)
-for i=1,#GarbageCollection do local __DARKLUA_CONTINUE_133=false repeat
+for i=1,#GarbageCollection do local __DARKLUA_CONTINUE_136=false repeat
 local v=GarbageCollection[i]
 
-if typeof(v)~="function"then __DARKLUA_CONTINUE_133=true
+if typeof(v)~="function"then __DARKLUA_CONTINUE_136=true
 break
 end
 
 local info=debug.getinfo(v)
 
-if not info or typeof(info.source)~="string"or typeof(info.name)~="string"then __DARKLUA_CONTINUE_133=true
+if not info or typeof(info.source)~="string"or typeof(info.name)~="string"then __DARKLUA_CONTINUE_136=true
 break
 end
 
 if info.source=="WeaponsProjectilesClient"and info.name=="simulateFirearmProjectile"then
 return v
-end __DARKLUA_CONTINUE_133=true until true if not __DARKLUA_CONTINUE_133 then break end
+end __DARKLUA_CONTINUE_136=true until true if not __DARKLUA_CONTINUE_136 then break end
 end
 
 return nil
@@ -6787,40 +6925,40 @@ local Distance,Closest,
 
 Players=Melee.Config.AuraRange,{},Players:GetPlayers()
 
-for i=1,#Players do local __DARKLUA_CONTINUE_135=false repeat
+for i=1,#Players do local __DARKLUA_CONTINUE_138=false repeat
 local Player=Players[i]
 
-if Player==LocalPlayer then __DARKLUA_CONTINUE_135=true
+if Player==LocalPlayer then __DARKLUA_CONTINUE_138=true
 break
 end
 
-if Player.Team==LocalPlayer.Team then __DARKLUA_CONTINUE_135=true
+if Player.Team==LocalPlayer.Team then __DARKLUA_CONTINUE_138=true
 break
 end
 
 local Character=Player.Character
 
-if not Character then __DARKLUA_CONTINUE_135=true
+if not Character then __DARKLUA_CONTINUE_138=true
 break
 end
 
 local PrimaryPart=Character:FindFirstChild"HumanoidRootPart"
 
-if not PrimaryPart then __DARKLUA_CONTINUE_135=true
+if not PrimaryPart then __DARKLUA_CONTINUE_138=true
 break
 end
 
 local Humanoid=Character:FindFirstChild"Humanoid"
 
-if not Humanoid then __DARKLUA_CONTINUE_135=true
+if not Humanoid then __DARKLUA_CONTINUE_138=true
 break
 end
 
-if Humanoid.Health<=0 then __DARKLUA_CONTINUE_135=true
+if Humanoid.Health<=0 then __DARKLUA_CONTINUE_138=true
 break
 end
 
-if Humanoid.MaxHealth>100 then __DARKLUA_CONTINUE_135=true
+if Humanoid.MaxHealth>100 then __DARKLUA_CONTINUE_138=true
 break
 end
 
@@ -6828,7 +6966,7 @@ local Magnitude=(PrimaryPart.Position-StatesHrpClient.getHrp().Position).Magnitu
 
 if Distance>Magnitude then
 table.insert(Closest,{Player=Player,Health=Humanoid.Health})
-end __DARKLUA_CONTINUE_135=true until true if not __DARKLUA_CONTINUE_135 then break end
+end __DARKLUA_CONTINUE_138=true until true if not __DARKLUA_CONTINUE_138 then break end
 end
 
 if#Closest==0 then
@@ -6913,14 +7051,14 @@ end
 
 local Players=Players:GetPlayers()
 
-for i=1,#Players do local __DARKLUA_CONTINUE_145=false repeat
+for i=1,#Players do local __DARKLUA_CONTINUE_148=false repeat
 local Player=Players[i]
 
-if Enemy~=Player then __DARKLUA_CONTINUE_145=true
+if Enemy~=Player then __DARKLUA_CONTINUE_148=true
 break
 end
 
-if not(Player.Character and Player.Character.PrimaryPart and LocalPlayer.Character and LocalPlayer.Character.PrimaryPart and Melee.TargetLines[Player])then __DARKLUA_CONTINUE_145=true break end
+if not(Player.Character and Player.Character.PrimaryPart and LocalPlayer.Character and LocalPlayer.Character.PrimaryPart and Melee.TargetLines[Player])then __DARKLUA_CONTINUE_148=true break end
 local To,OnScreen=Camera:WorldToViewportPoint(Player.Character.PrimaryPart.Position)
 local To2,OnScreen2=Camera:WorldToViewportPoint(LocalPlayer.Character.PrimaryPart.Position)
 
@@ -6931,7 +7069,7 @@ Melee.TargetLines[Player].From=Vector2.new(To2.X,To2.Y)
 Melee.TargetLines[Player].To=Vector2.new(To.X,To.Y)
 else
 Melee.TargetLines[Player].Visible=false
-end __DARKLUA_CONTINUE_145=true until true if not __DARKLUA_CONTINUE_145 then break end
+end __DARKLUA_CONTINUE_148=true until true if not __DARKLUA_CONTINUE_148 then break end
 end
 else
 for _,Line in Melee.TargetLines do
@@ -7150,7 +7288,7 @@ local Shake,
 
 
 
-OldShake=((LPH_JIT_MAX(function()local upvalues=debug.getupvalues(CombatRecoilClient.start)for _,v in upvalues do local __DARKLUA_CONTINUE_147=false repeat if typeof(v)~="function"then __DARKLUA_CONTINUE_147=true break end return v until true if not __DARKLUA_CONTINUE_147 then break end end return nil end))())
+OldShake=((LPH_JIT_MAX(function()local upvalues=debug.getupvalues(CombatRecoilClient.start)for _,v in upvalues do local __DARKLUA_CONTINUE_150=false repeat if typeof(v)~="function"then __DARKLUA_CONTINUE_150=true break end return v until true if not __DARKLUA_CONTINUE_150 then break end end return nil end))())
 OldShake=Utils.SecureHook(Shake,function(...)
 if Mods.Misc.RemoveMoraleCameraShake then
 return
@@ -7679,7 +7817,7 @@ ThemeManager.BuiltInThemes={Default=
 {
 1,
 httpService:JSONDecode
-'{"FontColor":"e7eaf1","MainColor":"191c23","AccentColor":"e14d5b","BackgroundColor":"11141a","OutlineColor":"303642"}'
+'{"FontColor":"e6eaf5","MainColor":"171b25","AccentColor":"7c8cff","BackgroundColor":"0e1118","OutlineColor":"2b3243"}'
 ,
 },BBot=
 {
@@ -7738,13 +7876,13 @@ end
 
 
 local scheme=data[2]
-for idx,col in next,customThemeData or scheme do local __DARKLUA_CONTINUE_158=false repeat
-if not table.find(ThemeFields,idx)then __DARKLUA_CONTINUE_158=true break end
+for idx,col in next,customThemeData or scheme do local __DARKLUA_CONTINUE_161=false repeat
+if not table.find(ThemeFields,idx)then __DARKLUA_CONTINUE_161=true break end
 self.Library[idx]=Color3.fromHex(col)
 
 if Options[idx]then
 Options[idx]:SetValueRGB(Color3.fromHex(col))
-end __DARKLUA_CONTINUE_158=true until true if not __DARKLUA_CONTINUE_158 then break end
+end __DARKLUA_CONTINUE_161=true until true if not __DARKLUA_CONTINUE_161 then break end
 end
 
 self:ThemeUpdate()
@@ -8071,21 +8209,30 @@ local ThemeManager,
 SaveManager,
 
 Window=init.O(),init.o(),Library:CreateWindow{
-Title="84e  /  CLIENT",
-Size=UDim2.fromOffset(760,640),
+Title="84e",
+Subtitle=Preflight.Version,
+Size=UDim2.fromOffset(920,660),
 Center=true,
 AutoShow=true,
 TabPadding=4,
 MenuFadeTime=0.2,
 }
 
-local Tabs={
-Legit=Window:AddTab"Legit",
-Rage=Window:AddTab"Rage",
-Visuals=Window:AddTab"Visuals",
-Misc=Window:AddTab"Misc",
-Settings=Window:AddTab"Settings",
+local Tabs,
+
+
+
+
+
+SettingsRoot={Legit=Window:AddTab"Legit",Rage=Window:AddTab"Rage",Visuals=Window:AddTab"Visuals",Misc=Window:AddTab"Misc",},Window:AddTab"Settings"
+SettingsRoot:SetLayoutOrder(6)
+local SettingsPages={
+General=SettingsRoot:AddPage"General",
+Appearance=SettingsRoot:AddPage"Appearance",
+Profiles=SettingsRoot:AddPage"Profiles",
+Diagnostics=SettingsRoot:AddPage"Diagnostics",
 }
+Tabs.Settings=SettingsPages.General
 
 do
 local SilentAim,
@@ -9197,15 +9344,15 @@ Options.MenuKeybind.NoUI=true
 
 ThemeManager:SetLibrary(Library)
 ThemeManager:SetFolder"84e Client/Themes"
-ThemeManager:ApplyToTab(Tabs.Settings)
+ThemeManager:ApplyToTab(SettingsPages.Appearance)
 
 SaveManager:SetLibrary(Library)
 SaveManager:SetFolder"84e Client/NW"
 SaveManager:IgnoreThemeSettings()
-SaveManager:BuildConfigSection(Tabs.Settings)
+SaveManager:BuildConfigSection(SettingsPages.Profiles)
 local world=modules.Features.Visuals.World
 Panels.Build(Library,Window,SaveManager,{
-World=world,Tracers=modules.Features.Visuals.BulletTracers,ThemeManager=ThemeManager,
+SettingsPages=SettingsPages,World=world,Tracers=modules.Features.Visuals.BulletTracers,ThemeManager=ThemeManager,
 SyncWorld=function()
 SaveManager.Loading=true
 local values={WorldVisualsEnabled=world.Enabled,CustomSkyEnabled=world.CustomSkyBox,
