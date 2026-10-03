@@ -138,7 +138,7 @@ resourceKinds[kind]=(resourceKinds[kind]or 0)+1
 end
 local ui=Runtime.Library
 local uiCounts=ui and{RegistryEntries=#ui.Registry,RetainedSignals=#ui.Signals}or nil
-return{Version="2.7 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
+return{Version="V2.7",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
 ResourceKinds=resourceKinds,UI=uiCounts,
 Components=components,Log=(function()
 local result={}
@@ -438,7 +438,7 @@ end
 
 return Assets end function init.e()local v=init.cache.e if not v then v={c=__modImpl()}init.cache.e=v end return v.c end end do local __modImpl=function()
 
-return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.7 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
+return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="V2.7",Snapshot="Barraux 2266 / 2026-08-15"}
 
 function Preflight.Check()
 local rows={}local add, 
@@ -2989,6 +2989,7 @@ BorderColor3="OutlineColor",
 
 local Fill=Library:Create("Frame",{
 BackgroundColor3=Library.AccentColor,
+BorderSizePixel=0,
 BorderColor3=Library.AccentColorDark,
 Size=UDim2.new(0,0,1,0),
 ZIndex=7,
@@ -3008,19 +3009,6 @@ Library:Round(Fill,5)
 Library:AddToRegistry(Fill,{
 BackgroundColor3="AccentColor",
 BorderColor3="AccentColorDark",
-})
-
-local HideBorderRight=Library:Create("Frame",{
-BackgroundColor3=Library.AccentColor,
-BorderSizePixel=0,
-Position=UDim2.new(1,0,0,0),
-Size=UDim2.new(0,1,1,0),
-ZIndex=8,
-Parent=Fill,
-})
-
-Library:AddToRegistry(HideBorderRight,{
-BackgroundColor3="AccentColor",
 })
 
 local DisplayLabel=Library:CreateLabel{
@@ -3057,7 +3045,6 @@ Slider.MaxSize=math.max(1,SliderInner.AbsoluteSize.X)
 local X=math.ceil(Library:MapValue(Slider.Value,Slider.Min,Slider.Max,0,Slider.MaxSize))
 Fill.Size=UDim2.new(0,X,1,0)
 
-HideBorderRight.Visible=not(X==Slider.MaxSize or X==0)
 end
 
 function Slider.OnChanged(self,Func)
@@ -4150,7 +4137,7 @@ Library:AddToRegistry(MainSectionInner,{
 BackgroundColor3="BackgroundColor",
 })
 
-Library:CreateLabel{Text=Config.Subtitle or"CLIENT CONTROL",TextSize=11,
+Library:CreateLabel{Text=Config.Subtitle or"V2.7",TextSize=11,
 TextXAlignment=Enum.TextXAlignment.Right,Position=UDim2.new(1,-280,0,19),
 Size=UDim2.fromOffset(250,18),Parent=Inner,ZIndex=2}
 local SectionTitle,
@@ -4163,7 +4150,7 @@ descriptions=Library:CreateLabel{Text="",TextSize=22,FontFace=Font.fromEnum(Enum
 Misc="Movement and character",Settings="Preferences, profiles and session health",Content="Browse the game content library"}
 Library:CreateLabel{Text="WORKSPACE",TextSize=10,TextXAlignment=Enum.TextXAlignment.Left,
 Position=UDim2.fromOffset(16,16),Size=UDim2.fromOffset(148,18),Parent=MainSectionInner,ZIndex=3}
-Library:CreateLabel{Text="84e client\nPotassium edition",TextSize=11,TextXAlignment=Enum.TextXAlignment.Left,
+Library:CreateLabel{Text="NW Private",TextSize=11,TextXAlignment=Enum.TextXAlignment.Left,
 Position=UDim2.new(0,16,1,-48),Size=UDim2.fromOffset(148,36),Parent=MainSectionInner,ZIndex=3}
 local TabArea=Library:Create("Frame",{
 BackgroundTransparency=1,
@@ -8114,7 +8101,7 @@ local Panels=init.n()
 if not ready then
 baseLibrary.StandardCursor=true
 local window,
-manager=baseLibrary:CreateWindow{Title="84e Client — readiness",Center=true,AutoShow=true},init.o()
+manager=baseLibrary:CreateWindow{Title="NW Private — readiness",Center=true,AutoShow=true},init.o()
 manager:SetLibrary(baseLibrary)
 manager:SetFolder"84e Client/NW"
 Panels.Build(baseLibrary,window,manager,{})
@@ -8127,7 +8114,7 @@ Runtime.Record("initialization",modules)
 Runtime.Rollback(checkpoint)
 baseLibrary.StandardCursor=true
 local window,
-manager=baseLibrary:CreateWindow{Title="84e Client — integration unavailable",Center=true,AutoShow=true},init.o()
+manager=baseLibrary:CreateWindow{Title="NW Private — integration unavailable",Center=true,AutoShow=true},init.o()
 manager:SetLibrary(baseLibrary)
 manager:SetFolder"84e Client/NW"
 Panels.Build(baseLibrary,window,manager,{InitializationError=modules})
@@ -8209,7 +8196,7 @@ local ThemeManager,
 SaveManager,
 
 Window=init.O(),init.o(),Library:CreateWindow{
-Title="84e",
+Title="NW Private",
 Subtitle=Preflight.Version,
 Size=UDim2.fromOffset(920,660),
 Center=true,
@@ -9305,7 +9292,7 @@ MenuSection:AddButton("Stop session",function()Library:Unload()end)
 MenuSection:AddButton("Session diagnostics",function()
 local failures=0
 for _,entry in Runtime.Errors do failures=failures+entry.Count end
-Library:Notify("84e "..Preflight.Version.." | error categories: "..tostring(#Runtime.ErrorOrder).." | recorded failures: "..tostring(failures))
+Library:Notify("NW Private "..Preflight.Version.." | error categories: "..tostring(#Runtime.ErrorOrder).." | recorded failures: "..tostring(failures))
 end)
 
 MenuSection:AddToggle("Watermark",{
@@ -9379,7 +9366,7 @@ SaveManager.Loading=false
 end
 SaveManager:LoadAutoloadConfig()
 
-Library:SetWatermark("84e Client - "
+Library:SetWatermark("NW Private - "
 ..os.date"%b %d %Y"
 .." - "
 ..(function()
