@@ -134,7 +134,7 @@ resourceKinds[kind]=(resourceKinds[kind]or 0)+1
 end
 local ui=Runtime.Library
 local uiCounts=ui and{RegistryEntries=#ui.Registry,RetainedSignals=#ui.Signals}or nil
-return{Version="2.5.3 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
+return{Version="2.6 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
 ResourceKinds=resourceKinds,UI=uiCounts,
 Components=components,Log=(function()
 local result={}
@@ -434,7 +434,7 @@ end
 
 return Assets end function init.e()local v=init.cache.e if not v then v={c=__modImpl()}init.cache.e=v end return v.c end end do local __modImpl=function()
 
-return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.5.3 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
+return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.6 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
 
 function Preflight.Check()
 local rows={}local add, 
@@ -699,7 +699,7 @@ local Library,
 
 
 RainbowStep,
-Hue={Registry={},RegistryMap={},HudRegistry={},FontColor=Color3.fromRGB(255,255,255),DisabledColor=Color3.fromRGB(65,65,65),MainColor=Color3.fromRGB(28,28,28),BackgroundColor=Color3.fromRGB(20,20,20),AccentColor=Color3.fromRGB(0,85,255),OutlineColor=Color3.fromRGB(50,50,50),RiskColor=Color3.fromRGB(200,50,50),Black=Color3.new(0,0,0),FontFace=TahomaFont or Font.fromEnum(Enum.Font.Code),Font=Enum.Font.Code,AllowRiskyFeatures=false,OpenedFrames={},DependencyBoxes={},Signals={},UnloadCallbacks={},Alive=true,NotifyOnError=true,SaveQueued=false,FontScale=1,ReducedMotion=false,StandardCursor=false,MenuVisible=false,FontBaselines=setmetatable({},{__mode="k"}),ScreenGui=ScreenGui,},0,0
+Hue={Registry={},RegistryMap={},HudRegistry={},FontColor=Color3.fromRGB(231,234,241),DisabledColor=Color3.fromRGB(65,65,65),MainColor=Color3.fromRGB(25,28,35),BackgroundColor=Color3.fromRGB(17,20,26),AccentColor=Color3.fromRGB(225,77,91),OutlineColor=Color3.fromRGB(48,54,66),RiskColor=Color3.fromRGB(200,50,50),Black=Color3.new(0,0,0),FontFace=TahomaFont or Font.fromEnum(Enum.Font.Code),Font=Enum.Font.Code,AllowRiskyFeatures=false,OpenedFrames={},DependencyBoxes={},Signals={},UnloadCallbacks={},Alive=true,NotifyOnError=true,SaveQueued=false,FontScale=1,ReducedMotion=false,StandardCursor=false,MenuVisible=false,FontBaselines=setmetatable({},{__mode="k"}),ScreenGui=ScreenGui,},0,0
 
 table.insert(
 Library.Signals,
@@ -2324,7 +2324,7 @@ Gradient,
 
 
 
-Label=Library:Create("UIGradient",{Rotation=90,Parent=Inner,Color=ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),ColorSequenceKeypoint.new(1,Color3.fromRGB(185,185,185)),},}), Library:CreateLabel{
+Label=Library:Create("UIGradient",{Rotation=90,Parent=Inner,Color=ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),},}), Library:CreateLabel{
 Size=UDim2.new(1,0,1,0),
 TextSize=12,
 Text=Button.Text,
@@ -2745,7 +2745,7 @@ Rotation=90,
 Parent=ToggleInner,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(185,185,185)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
 },
 })
 
@@ -2943,7 +2943,7 @@ Rotation=90,
 Parent=SliderInner,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(185,185,185)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
 },
 })
 
@@ -2965,7 +2965,7 @@ Rotation=90,
 Parent=Fill,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(185,185,185)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
 },
 })
 
@@ -3184,7 +3184,7 @@ Rotation=90,
 Parent=DropdownInner,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(185,185,185)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
 },
 })
 
@@ -3270,7 +3270,7 @@ Rotation=90,
 Parent=ListInner,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(185,185,185)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
 },
 })
 
@@ -3982,7 +3982,7 @@ if typeof(Config.Position)~="UDim2"then
 Config.Position=UDim2.fromOffset(175,50)
 end
 if typeof(Config.Size)~="UDim2"then
-Config.Size=UDim2.fromOffset(550,600)
+Config.Size=UDim2.fromOffset(760,640)
 end
 
 if Config.Center then
@@ -4006,7 +4006,7 @@ ZIndex=1,
 Parent=ScreenGui,
 })
 
-Library:MakeDraggable(Outer,25)
+Library:MakeDraggable(Outer,42)
 Library.ScaleControl=Library:Create("UIScale",{Scale=1,Parent=Outer})
 Window.Outer=Outer
 
@@ -4018,7 +4018,7 @@ BorderColor3=Color3.fromRGB(0,0,0),
 BackgroundColor3=Color3.fromRGB(255,255,255),
 Image="http://www.roblox.com/asset/?id=18245826428",
 BackgroundTransparency=1,
-ImageTransparency=0.8,
+ImageTransparency=0.94,
 Position=UDim2.new(0,-20,0,-20),
 Size=UDim2.new(1,40,1,40),
 ZIndex=1,
@@ -4054,11 +4054,12 @@ local WindowLabel,
 
 
 
-MainSectionOuter=Library:CreateLabel{Position=UDim2.new(0,7,0,0),Size=UDim2.new(0,0,0,25),Text=Config.Title or"",TextXAlignment=Enum.TextXAlignment.Left,ZIndex=1,Parent=Inner,},Library:Create("Frame",{
+
+MainSectionOuter=Library:CreateLabel{Position=UDim2.new(0,16,0,0),TextSize=18,Size=UDim2.new(0,0,0,42),Text=Config.Title or"",TextXAlignment=Enum.TextXAlignment.Left,ZIndex=1,Parent=Inner,},Library:Create("Frame",{
 BackgroundColor3=Library.BackgroundColor,
 BorderColor3=Library.OutlineColor,
-Position=UDim2.new(0,8,0,25),
-Size=UDim2.new(1,-16,1,-33),
+Position=UDim2.new(0,12,0,42),
+Size=UDim2.new(1,-24,1,-54),
 ZIndex=1,
 Parent=Inner,
 })
@@ -4085,7 +4086,7 @@ BackgroundColor3="BackgroundColor",
 local TabArea=Library:Create("Frame",{
 BackgroundTransparency=1,
 Position=UDim2.new(0,8,0,8),
-Size=UDim2.new(1,-16,0,21),
+Size=UDim2.new(1,-16,0,30),
 ZIndex=1,
 Parent=MainSectionInner,
 })
@@ -4101,8 +4102,8 @@ local TabListLayout,
 TabContainer=Library:Create("UIListLayout",{Padding=UDim.new(0,Config.TabPadding),FillDirection=Enum.FillDirection.Horizontal,SortOrder=Enum.SortOrder.LayoutOrder,HorizontalFlex=Enum.UIFlexAlignment.Fill,Parent=TabArea,}),Library:Create("Frame",{
 BackgroundColor3=Library.MainColor,
 BorderColor3=Library.OutlineColor,
-Position=UDim2.new(0,8,0,30),
-Size=UDim2.new(1,-16,1,-38),
+Position=UDim2.new(0,8,0,44),
+Size=UDim2.new(1,-16,1,-52),
 ZIndex=2,
 Parent=MainSectionInner,
 })
@@ -4138,7 +4139,7 @@ Rotation=-90,
 Parent=TabButton,
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(185,185,185)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),
 },
 })
 
@@ -4201,7 +4202,7 @@ LeftSide,
 
 
 
-RightSide=Library:Create("UIGradient",{Rotation=-90,Parent=TabFrame,Color=ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),ColorSequenceKeypoint.new(1,Color3.fromRGB(185,185,185)),},}), Library:Create("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,Position=UDim2.new(0,7,0,7),Size=UDim2.new(0.5,-10,1,-14),CanvasSize=UDim2.new(0,0,0,0),BottomImage="",TopImage="",ScrollBarThickness=0,ZIndex=2,Parent=TabFrame,}), Library:Create("ScrollingFrame",{
+RightSide=Library:Create("UIGradient",{Rotation=-90,Parent=TabFrame,Color=ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),ColorSequenceKeypoint.new(1,Color3.fromRGB(245,245,245)),},}), Library:Create("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,Position=UDim2.new(0,7,0,7),Size=UDim2.new(0.5,-10,1,-14),CanvasSize=UDim2.new(0,0,0,0),BottomImage="",TopImage="",ScrollBarThickness=0,ZIndex=2,Parent=TabFrame,}), Library:Create("ScrollingFrame",{
 BackgroundTransparency=1,
 BorderSizePixel=0,
 Position=UDim2.new(0.5,5,0,7),
@@ -6602,7 +6603,7 @@ end)()
 
 assert(type(simulateFirearmProjectile)=="function","simulateFirearmProjectile dependency unavailable")
 
-local LerpDirection,
+local LerpDirection,DecideAssist,
 
 
 
@@ -6610,21 +6611,35 @@ local LerpDirection,
 
 
 
-oldsimulateFirearmProjectile=(LPH_JIT_MAX(function(CurrentDir,DesiredDir,TurnRate)if CurrentDir:Dot(DesiredDir)<=0 then return CurrentDir end return(CurrentDir+(DesiredDir-CurrentDir)*TurnRate).Unit end))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+oldsimulateFirearmProjectile=LPH_JIT_MAX(function(CurrentDir,DesiredDir,TurnRate)if CurrentDir:Dot(DesiredDir)<=0 then return CurrentDir end return(CurrentDir+(DesiredDir-CurrentDir)*TurnRate).Unit end),function(Projectile, Enabled, Target, Chance, Roll)if Projectile.__84eAssistDecision==nil then local Probability,Accepted=type(Chance)=="number"and Chance==Chance and math.clamp(Chance,0,100)/100 or 0,false if Enabled and Target then if Probability>=1 then Accepted=true elseif Probability>0 then Accepted=Roll()<Probability end end Projectile.__84eAssistDecision=Accepted if Accepted then Projectile.__Target=Target end end return Projectile.__84eAssistDecision end
 oldsimulateFirearmProjectile=Utils.SecureHook(simulateFirearmProjectile,function(BulletTable,DeltaTime,ExtraVelocity)
 if not BulletTable.isLocal then
 return oldsimulateFirearmProjectile(BulletTable,DeltaTime,ExtraVelocity)
 end
 
-local StartPosition=BulletTable.position
+local StartPosition,
 
+Assisted=BulletTable.position,DecideAssist(BulletTable,SilentAim.Config.Enabled,
+SilentAim.TargetPart and SilentAim.Target,SilentAim.Config.Hitchance,math.random)
 if SilentAim.Config.Enabled and SilentAim.TargetPart then
-local Chance=SilentAim.Config.Hitchance/100
-
-if math.random()<=Chance then
-if not BulletTable.__Target then
-BulletTable.__Target=SilentAim.Target
-end
+if Assisted then
 
 if BulletTable.__Target then
 local character=BulletTable.__Target.Character
@@ -7660,7 +7675,7 @@ ThemeManager.BuiltInThemes={Default=
 {
 1,
 httpService:JSONDecode
-'{"FontColor":"d9d9d9","MainColor":"171717","AccentColor":"c83232","BackgroundColor":"141414","OutlineColor":"323232"}'
+'{"FontColor":"e7eaf1","MainColor":"191c23","AccentColor":"e14d5b","BackgroundColor":"11141a","OutlineColor":"303642"}'
 ,
 },BBot=
 {
@@ -8052,10 +8067,11 @@ local ThemeManager,
 SaveManager,
 
 Window=init.O(),init.o(),Library:CreateWindow{
-Title="84e Client",
+Title="84e  /  CLIENT",
+Size=UDim2.fromOffset(760,640),
 Center=true,
 AutoShow=true,
-TabPadding=0,
+TabPadding=4,
 MenuFadeTime=0.2,
 }
 
@@ -8069,7 +8085,7 @@ Settings=Window:AddTab"Settings",
 
 do
 local SilentAim,
-SilentAimSection=modules.Features.Combat.SilentAim,Tabs.Legit:AddLeftGroupbox"Silent Aim"
+SilentAimSection=modules.Features.Combat.SilentAim,Tabs.Legit:AddLeftGroupbox"Aim assistance"
 
 SilentAimSection:AddToggle("SilentAimEnabled",{
 Text="Enabled",
@@ -8101,9 +8117,10 @@ end,
 })
 
 SilentAimSection:AddSlider("SilentAimHitchance",{
-Text="Hitchance",
+Text="HitChance",
+Tooltip="One decision per projectile. 0% disables assistance; 100% accepts every eligible projectile. This is assistance probability, not guaranteed hits.",
 Default=100,
-Min=1,
+Min=0,
 Max=100,
 Suffix="%",
 Rounding=0,
@@ -8116,7 +8133,7 @@ end,
 SilentAimSection:AddDropdown("SilentAimAimpart",{
 Values={"Head","Torso"},
 Multi=false,
-Text="Hitpart",
+Text="Target part",
 Default="Head",
 Callback=function(Value)
 SilentAim.Config.Hitpart=Value
@@ -8162,7 +8179,7 @@ end,
 SilentAimSection:AddDivider()
 
 SilentAimSection:AddToggle("SilentAimVisibleCheckEnabled",{
-Text="Visible Check",
+Text="Visible targets only",
 Default=false,
 Callback=function(Value)
 SilentAim.Config.VisibleCheck=Value
@@ -8181,7 +8198,8 @@ Options.Decrease.NoUI=true
 Options.Increase.NoUI=true
 Options.SilentAimBind.NoUI=true
 
-local FOVSection=Tabs.Legit:AddRightGroupbox"FOV"
+local OverlayBox=Tabs.Legit:AddTabbox{Side=2}
+local FOVSection=OverlayBox:AddTab"FOV"
 
 FOVSection:AddToggle("SilentAimFOVEnabled",{
 Text="Enabled",
@@ -8270,7 +8288,7 @@ end,
 })
 
 
-local LineSection=Tabs.Legit:AddRightGroupbox"Line"
+local LineSection=OverlayBox:AddTab"Target line"
 
 LineSection:AddToggle("SilentAimLineEnabled",{
 Text="Enabled",
@@ -8310,7 +8328,7 @@ end
 
 do
 local HitboxExtender,
-HitboxExtenderSection=modules.Features.Combat.HitboxExtender,Tabs.Legit:AddLeftGroupbox"Hitbox Extender"
+HitboxExtenderSection=modules.Features.Combat.HitboxExtender,Tabs.Legit:AddRightGroupbox"Hitbox Extender"
 
 local Toggle=HitboxExtenderSection:AddToggle("HitboxExtenderEnabled",{
 Text="Enabled",
