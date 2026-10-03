@@ -134,7 +134,7 @@ resourceKinds[kind]=(resourceKinds[kind]or 0)+1
 end
 local ui=Runtime.Library
 local uiCounts=ui and{RegistryEntries=#ui.Registry,RetainedSignals=#ui.Signals}or nil
-return{Version="2.5.2 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
+return{Version="2.5.3 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
 ResourceKinds=resourceKinds,UI=uiCounts,
 Components=components,Log=(function()
 local result={}
@@ -434,7 +434,7 @@ end
 
 return Assets end function init.e()local v=init.cache.e if not v then v={c=__modImpl()}init.cache.e=v end return v.c end end do local __modImpl=function()
 
-return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.5.2 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
+return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.5.3 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
 
 function Preflight.Check()
 local rows={}local add, 
@@ -638,22 +638,22 @@ end
 
 local InputService,
 TextService,
-CoreGui,
 Teams,
 Players,
 RunService,
-TweenService=game:GetService"UserInputService",game:GetService"TextService",game:GetService"CoreGui",game:GetService"Teams",game:GetService"Players",game:GetService"RunService",game:GetService"TweenService"
+TweenService=game:GetService"UserInputService",game:GetService"TextService",game:GetService"Teams",game:GetService"Players",game:GetService"RunService",game:GetService"TweenService"
 local RenderStepped,
 LocalPlayer=RunService.RenderStepped,Players.LocalPlayer
 local Mouse,
 
-ProtectGui,
+PlayerGui=LocalPlayer:GetMouse(),LocalPlayer:FindFirstChildOfClass"PlayerGui"or LocalPlayer:WaitForChild("PlayerGui",10)
+assert(PlayerGui and PlayerGui:IsA"PlayerGui","PlayerGui unavailable after 10 seconds")
 
-ScreenGui=LocalPlayer:GetMouse(),protectgui or(syn and syn.protect_gui)or function()end,Runtime.Own(Instance.new"ScreenGui")
-ProtectGui(ScreenGui)
+local ScreenGui=Runtime.Own(Instance.new"ScreenGui")
 
 ScreenGui.ZIndexBehavior=Enum.ZIndexBehavior.Global
-ScreenGui.Parent=CoreGui
+ScreenGui.ResetOnSpawn=false
+ScreenGui.Parent=PlayerGui
 
 local Toggles,
 Options={},{}
@@ -9136,7 +9136,7 @@ MenuSection:AddButton("Stop session",function()Library:Unload()end)
 MenuSection:AddButton("Session diagnostics",function()
 local failures=0
 for _,entry in Runtime.Errors do failures=failures+entry.Count end
-Library:Notify("84e V2.4 Upgraded | components: "..tostring(#Runtime.ErrorOrder).." with errors | failures: "..tostring(failures))
+Library:Notify("84e "..Preflight.Version.." | error categories: "..tostring(#Runtime.ErrorOrder).." | recorded failures: "..tostring(failures))
 end)
 
 MenuSection:AddToggle("Watermark",{
