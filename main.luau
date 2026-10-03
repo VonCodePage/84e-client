@@ -127,7 +127,7 @@ table.insert(components,{Name=name,Count=metric.Count,Suspended=metric.Suspended
 LastMs=metric.LastMs,MaxMs=metric.MaxMs,P95Ms=samples[math.max(1,math.ceil(#samples*0.95))]or 0})
 end
 table.sort(components,function(a,b)return a.Name<b.Name end)
-return{Version="2.5 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
+return{Version="2.5.1 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
 Components=components,Log=(function()
 local result={}
 for _,item in Runtime.Log do table.insert(result,table.clone(item))end
@@ -426,7 +426,7 @@ end
 
 return Assets end function init.e()local v=init.cache.e if not v then v={c=__modImpl()}init.cache.e=v end return v.c end end do local __modImpl=function()
 
-return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.5 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
+return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.5.1 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
 
 function Preflight.Check()
 local rows={}local add, 
@@ -753,6 +753,14 @@ if Library.ThrowCallbackErrors then error(result,0)end
 end
 if ok then return result end
 return nil
+end
+
+function Library.ResolveKey(self,name)
+if type(name)~="string"or name=="-"or name==""then return nil end
+if name=="MB1"then return Enum.UserInputType.MouseButton1 end
+if name=="MB2"then return Enum.UserInputType.MouseButton2 end
+local ok,key=pcall(function()return Enum.KeyCode[name]end)
+return ok and key or nil
 end
 
 function Library.AttemptSave(self)
@@ -1954,7 +1962,7 @@ if Key=="MB1"or Key=="MB2"then
 return Key=="MB1"and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
 or Key=="MB2"and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
 else
-local key=Enum.KeyCode[KeyPicker.Value]
+local key=Library:ResolveKey(KeyPicker.Value)
 return key~=nil and InputService:IsKeyDown(key)
 end
 else
@@ -1966,14 +1974,12 @@ function KeyPicker.SetValue(self,Data)
 assert(type(Data)=="table","binding must be a table")
 local Key,Mode=Data[1],Data[2]
 assert(type(Key)=="string"and ModeButtons[Mode],"invalid key binding")
-assert(Key=="-"or Key==""or Key=="MB1"or Key=="MB2"or Enum.KeyCode[Key],"unknown key")
+assert(Key=="-"or Key==""or Key=="MB1"or Key=="MB2"or Library:ResolveKey(Key),"unknown key")
 KeyPicker.Value=Key==""and"-"or Key
 if KeyPicker.Value=="-"then KeyPicker.Toggled=false end
 DisplayLabel.Text=KeyPicker.Value
 ModeButtons[Mode]:Select()
-local input=KeyPicker.Value=="MB1"and Enum.UserInputType.MouseButton1
-or KeyPicker.Value=="MB2"and Enum.UserInputType.MouseButton2
-or Enum.KeyCode[KeyPicker.Value]
+local input=Library:ResolveKey(KeyPicker.Value)
 Library:SafeCallback(KeyPicker.ChangedCallback,input)
 Library:SafeCallback(KeyPicker.Changed,input)
 KeyPicker:Update()
@@ -2087,9 +2093,7 @@ Library.CapturingInput=false
 DisplayLabel.Text=Key
 KeyPicker.Value=Key
 
-local changedInput=Key=="MB1"and Enum.UserInputType.MouseButton1
-or Key=="MB2"and Enum.UserInputType.MouseButton2
-or Enum.KeyCode[Key]
+local changedInput=Library:ResolveKey(Key)
 Library:SafeCallback(KeyPicker.ChangedCallback,changedInput)
 Library:SafeCallback(KeyPicker.Changed,changedInput)
 
@@ -5314,7 +5318,10 @@ value.transparency=entry.transparency or 0
 if not Storage.Finite(value.transparency)or value.transparency<0 or value.transparency>1 then return false,"invalid transparency"end
 elseif entry.type=="KeyPicker"then
 if type(entry.key)~="string"or not({Always=true,Toggle=true,Hold=true})[entry.mode]then return false,"invalid binding: "..entry.idx end
-if entry.key~="-"and entry.key~=""and entry.key~="MB1"and entry.key~="MB2"and not Enum.KeyCode[entry.key]then return false,"unknown key: "..entry.key end
+if entry.key~="-"and entry.key~=""and entry.key~="MB1"and entry.key~="MB2"then
+local known,key=pcall(function()return Enum.KeyCode[entry.key]end)
+if not known or not key then return false,"unknown key: "..entry.key end
+end
 value.key=entry.key==""and"-"or entry.key
 elseif entry.type=="Input"then
 if type(entry.text)~="string"or#entry.text>4096 then return false,"invalid input: "..entry.idx end
@@ -7232,6 +7239,7 @@ local ChantSets,
 LocalPlayer=Modules:GetModule("ChantSets",true)or debug.getupvalue(ChantActionClient.start,5),Core.Services.Players.LocalPlayer
 
 local Chants={
+Sets=ChantSets,
 Config={
 SpamEnabled=false,
 EmoteEnabled=false,
@@ -8716,8 +8724,8 @@ do
 local Chants,
 ChantSpamSection,
 
-
-ChantSets,SelectedChantSet=modules.Features.Misc.Chants,Tabs.Misc:AddLeftGroupbox"Chant Spam",(Core.Modules:GetModule("ChantSets",true))
+SelectedChantSet=modules.Features.Misc.Chants,(Tabs.Misc:AddLeftGroupbox"Chant Spam")
+local ChantSets=type(Chants.Sets)=="table"and Chants.Sets or{}
 
 ChantSpamSection:AddToggle("ChantSpamEnabled",{
 Text="Enabled",
