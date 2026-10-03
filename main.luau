@@ -4150,8 +4150,7 @@ descriptions=Library:CreateLabel{Text="",TextSize=22,FontFace=Font.fromEnum(Enum
 Misc="Movement and character",Settings="Preferences, profiles and session health",Content="Browse the game content library"}
 Library:CreateLabel{Text="WORKSPACE",TextSize=10,TextXAlignment=Enum.TextXAlignment.Left,
 Position=UDim2.fromOffset(16,16),Size=UDim2.fromOffset(148,18),Parent=MainSectionInner,ZIndex=3}
-Library:CreateLabel{Text="NW Private",TextSize=11,TextXAlignment=Enum.TextXAlignment.Left,
-Position=UDim2.new(0,16,1,-48),Size=UDim2.fromOffset(148,36),Parent=MainSectionInner,ZIndex=3}
+
 local TabArea=Library:Create("Frame",{
 BackgroundTransparency=1,
 Position=UDim2.new(0,12,0,46),
@@ -7115,13 +7114,12 @@ HitboxExtender=init.y(),
 SilentAim=init.A(),
 MeleeAura=init.B(),
 }end function init.C()local v=init.cache.C if not v then v={c=__modImpl()}init.cache.C=v end return v.c end end do local __modImpl=function()
-local Core,
-Network=init.v(),init.x()
+local Core=init.v()local
 
-local Utils,
-Modules,
-Services,
-Variables=Core.Utils,Core.Modules,Core.Services,Core.Variables
+Utils, 
+Modules, 
+Services, 
+Variables=Core.Utils, Core.Modules, Core.Services, Core.Variables
 
 local Players=Services.Players
 local LocalPlayer,
@@ -7136,30 +7134,49 @@ Flag,
 
 
 
-OldPromptTriggered=Players.LocalPlayer,Modules:GetModule("FlagRig",true),{Config={InstantCapture=false,InstantRespawn=false,NoSpawnConditions=false,},}
-OldPromptTriggered=Utils.SecureHook(FlagRig.PromptTriggered,function(self)
-if Flag.Config.InstantCapture then
-return
-end
-return OldPromptTriggered(self)
-end)
 
-local OldPromptBegan=FlagRig.PromptBegan
+Runtime,
+ActivePrompts=Players.LocalPlayer,Modules:GetModule("FlagRig",true),{Config={InstantCapture=false,PickupSpeed=100,InstantRespawn=false,NoSpawnConditions=false,},},init.b(),setmetatable({},{__mode="k"})
+local OldPromptTriggered,
+OldPromptBegan,RestorePrompt=FlagRig.PromptTriggered,FlagRig.PromptBegan,function(
+
+self)
+local original=ActivePrompts[self]
+if original then
+if self.prompt then self.prompt.HoldDuration=original.prompt end
+self.holdDuration=original.rig
+ActivePrompts[self]=nil
+end end
+
+
+FlagRig.PromptTriggered=function(self)
+local result=OldPromptTriggered(self)
+RestorePrompt(self)
+return result
+end
+
 FlagRig.PromptBegan=function(self)
-if self.originalHoldDuration==nil then self.originalHoldDuration=self.prompt.HoldDuration end
+RestorePrompt(self)
 if Flag.Config.InstantCapture and not LocalPlayer:GetAttribute"FlagBearer"then
-self.prompt.HoldDuration=0
-self.promptBeganTime=nil
-Network:FireEvent("EquipFlag",nil,self.flagModel)
+local speed=tonumber(Flag.Config.PickupSpeed)or 1
+if speed~=speed then speed=1 end
+speed=math.clamp(speed,1,100)
+local original={prompt=self.prompt.HoldDuration,rig=self.holdDuration}
+ActivePrompts[self]=original
+local duration=original.prompt*(100-speed)/99
+self.prompt.HoldDuration=duration
+self.holdDuration=duration
+OldPromptBegan(self)
+if duration==0 then return FlagRig.PromptTriggered(self)end
 return
 end
-
-self.prompt.HoldDuration=self.originalHoldDuration or self.prompt.HoldDuration
-
 return OldPromptBegan(self)
 end
 
 Flag.Update=LPH_JIT_MAX(function()
+if not Flag.Config.InstantCapture then
+for rig in pairs(ActivePrompts)do RestorePrompt(rig)end
+end
 if Flag.Config.InstantRespawn or Flag.Config.NoSpawnConditions then
 Variables.SetVariable("FlagHoldToSpawnTime",0)
 else
@@ -7198,9 +7215,13 @@ Variables.SetVariable("FlagRespawnTime",nil,true)
 Variables.SetVariable("FlagNearRange",nil,true)
 Variables.SetVariable("FlagFarRange",nil,true)
 end
-end)init.b()
+end)
 
-.Add(function()FlagRig.PromptBegan=OldPromptBegan end)
+Runtime.Add(function()
+FlagRig.PromptBegan=OldPromptBegan
+FlagRig.PromptTriggered=OldPromptTriggered
+for rig in pairs(ActivePrompts)do RestorePrompt(rig)end
+end)
 return Flag end function init.D()local v=init.cache.D if not v then v={c=__modImpl()}init.cache.D=v end return v.c end end do local __modImpl=function()
 
 local Core,
@@ -7275,7 +7296,7 @@ local Shake,
 
 
 
-OldShake=((LPH_JIT_MAX(function()local upvalues=debug.getupvalues(CombatRecoilClient.start)for _,v in upvalues do local __DARKLUA_CONTINUE_150=false repeat if typeof(v)~="function"then __DARKLUA_CONTINUE_150=true break end return v until true if not __DARKLUA_CONTINUE_150 then break end end return nil end))())
+OldShake=((LPH_JIT_MAX(function()local upvalues=debug.getupvalues(CombatRecoilClient.start)for _,v in upvalues do local __DARKLUA_CONTINUE_152=false repeat if typeof(v)~="function"then __DARKLUA_CONTINUE_152=true break end return v until true if not __DARKLUA_CONTINUE_152 then break end end return nil end))())
 OldShake=Utils.SecureHook(Shake,function(...)
 if Mods.Misc.RemoveMoraleCameraShake then
 return
@@ -7863,13 +7884,13 @@ end
 
 
 local scheme=data[2]
-for idx,col in next,customThemeData or scheme do local __DARKLUA_CONTINUE_161=false repeat
-if not table.find(ThemeFields,idx)then __DARKLUA_CONTINUE_161=true break end
+for idx,col in next,customThemeData or scheme do local __DARKLUA_CONTINUE_163=false repeat
+if not table.find(ThemeFields,idx)then __DARKLUA_CONTINUE_163=true break end
 self.Library[idx]=Color3.fromHex(col)
 
 if Options[idx]then
 Options[idx]:SetValueRGB(Color3.fromHex(col))
-end __DARKLUA_CONTINUE_161=true until true if not __DARKLUA_CONTINUE_161 then break end
+end __DARKLUA_CONTINUE_163=true until true if not __DARKLUA_CONTINUE_163 then break end
 end
 
 self:ThemeUpdate()
@@ -9102,12 +9123,18 @@ end,
 local FlagModsTab=TabBox:AddTab"Flag"
 
 FlagModsTab:AddToggle("InstantFlagPickup",{
-Text="Fast Flag Prompt (RISKY)",
+Text="Fast Flag Pickup",
 Default=false,
-Risky=true,
 Callback=function(Value)
 FlagMods.Config.InstantCapture=Value
 end,
+})
+
+FlagModsTab:AddSlider("FlagPickupSpeed",{
+Text="Pickup Speed",Default=100,Min=1,Max=100,
+Rounding=0,Suffix="%",Compact=false,
+Tooltip="1% uses normal hold time. 100% is instant. Applies when Fast Flag Pickup is enabled.",
+Callback=function(Value)FlagMods.Config.PickupSpeed=Value end,
 })
 
 FlagModsTab:AddToggle("InstantRespawn",{
