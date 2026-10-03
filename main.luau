@@ -134,7 +134,7 @@ resourceKinds[kind]=(resourceKinds[kind]or 0)+1
 end
 local ui=Runtime.Library
 local uiCounts=ui and{RegistryEntries=#ui.Registry,RetainedSignals=#ui.Signals}or nil
-return{Version="2.6 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
+return{Version="2.6.1 Potassium",Alive=Runtime.Alive,ResourceCount=Runtime.Resources:Count(),
 ResourceKinds=resourceKinds,UI=uiCounts,
 Components=components,Log=(function()
 local result={}
@@ -434,7 +434,7 @@ end
 
 return Assets end function init.e()local v=init.cache.e if not v then v={c=__modImpl()}init.cache.e=v end return v.c end end do local __modImpl=function()
 
-return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.6 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
+return init.e()end function init.f()local v=init.cache.f if not v then v={c=__modImpl()}init.cache.f=v end return v.c end end do local __modImpl=function()local Preflight={Version="2.6.1 Potassium",Snapshot="Barraux 2266 / 2026-08-15"}
 
 function Preflight.Check()
 local rows={}local add, 
@@ -8085,7 +8085,7 @@ Settings=Window:AddTab"Settings",
 
 do
 local SilentAim,
-SilentAimSection=modules.Features.Combat.SilentAim,Tabs.Legit:AddLeftGroupbox"Aim assistance"
+SilentAimSection=modules.Features.Combat.SilentAim,Tabs.Legit:AddLeftGroupbox"Silent Aim"
 
 SilentAimSection:AddToggle("SilentAimEnabled",{
 Text="Enabled",
